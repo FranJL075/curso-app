@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta: "academia nocturna" — tinta verde-bosque profunda + latón cálido */
+  --ink: #16241f;
+  --ink-soft: #23342c;
+  --paper: #efe9da;
+  --panel: #f8f5ec;
+  --brass: #c89b3c;
+  --brass-dark: #a17d2c;
+  --teal: #3e6259;
+  --line: #d8cfb8;
+
+  --background: var(--paper);
+  --foreground: var(--ink-soft);
+
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-brass: var(--brass);
+  --color-brass-dark: var(--brass-dark);
+  --color-teal: var(--teal);
+  --color-line: var(--line);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}

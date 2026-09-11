@@ -1,0 +1,30 @@
+[
+  {
+    "slug": "desarrollo-web-full-stack",
+    "title": "Desarrollo Web Full Stack",
+    "summary": "De cero a construir y desplegar tu primera aplicación web completa.",
+    "description": "Recorremos HTML, CSS y JavaScript moderno, un framework de frontend, y cómo armar una API propia. Terminás el curso con un proyecto real desplegado y en tu portfolio.\n\nDictado en vivo, con encuentros grabados por si no llegás a alguna clase.",
+    "duration": "8 semanas, 2 clases por semana",
+    "start_date": null,
+    "spots": 20,
+    "image_url": null,
+    "is_paid": true,
+    "price_cents": 4500000,
+    "currency": "ARS",
+    "is_active": true
+  },
+  {
+    "slug": "introduccion-a-datos",
+    "title": "Introducción al Análisis de Datos",
+    "summary": "Los fundamentos para empezar a trabajar con datos, sin experiencia previa.",
+    "description": "Vemos planillas avanzadas, los conceptos básicos de estadística que realmente se usan en el trabajo, y una introducción a SQL para poder consultar bases de datos por tu cuenta.",
+    "duration": "4 semanas, 1 clase por semana",
+    "start_date": null,
+    "spots": 30,
+    "image_url": null,
+    "is_paid": false,
+    "price_cents": null,
+    "currency": "ARS",
+    "is_active": true
+  }
+]
