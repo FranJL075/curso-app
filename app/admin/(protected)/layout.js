@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { isAdminRequest } from "@/lib/requireAdmin";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -14,9 +15,9 @@ export default async function ProtectedAdminLayout({ children }) {
             Panel de administración
           </a>
           <div className="flex items-center gap-4 text-sm">
-            <a href="/" className="text-paper/70 hover:text-paper">
+            <Link href="/" className="text-paper/70 hover:text-paper">
               Ver sitio público
-            </a>
+            </Link>
             <LogoutButton />
           </div>
         </div>

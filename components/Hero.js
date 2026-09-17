@@ -1,20 +1,20 @@
 export default function Hero() {
   return (
-    <section className="bg-ink text-paper">
-      <div className="mx-auto max-w-5xl px-6 py-24 md:py-32">
-        <p className="text-brass text-sm tracking-wide mb-6">Próxima cohorte abierta</p>
-        <h1 className="font-display text-4xl md:text-6xl leading-[1.05] max-w-3xl">
-          Aprendé un oficio que se nota en tu primer trabajo.
+    <section className="relative overflow-hidden bg-ink text-paper">
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.84),rgba(0,0,0,.36)),url('https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center" />
+      <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-36">
+        <p className="text-brass text-sm font-semibold uppercase tracking-[0.22em] mb-5">Formación profesional online</p>
+        <h1 className="font-display text-6xl md:text-8xl uppercase leading-[0.88] max-w-3xl">
+          Convertí tu talento en una profesión.
         </h1>
-        <p className="mt-6 max-w-xl text-paper/80 text-lg">
-          Cursos cortos, dictados por gente que trabaja en esto todos los días.
-          Elegí el que te sirve, dejá tus datos y te guardamos el lugar.
+        <p className="mt-7 max-w-xl text-paper/85 text-base md:text-lg leading-relaxed">
+          Cursos prácticos, clases claras y herramientas para empezar a trabajar en lo que te apasiona.
         </p>
         <a
           href="#cursos"
-          className="inline-block mt-10 bg-brass text-ink font-medium px-6 py-3 hover:bg-brass-dark transition-colors"
+          className="inline-block mt-9 bg-brass text-ink font-semibold uppercase tracking-wide px-7 py-4 hover:bg-brass-dark transition-colors"
         >
-          Ver cursos disponibles
+          Ver todas las clases
         </a>
       </div>
     </section>

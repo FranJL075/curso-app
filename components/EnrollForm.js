@@ -41,7 +41,7 @@ export default function EnrollForm({ course }) {
   if (status === "done") {
     return (
       <div className="bg-teal text-paper p-6">
-        <p className="font-display text-xl">¡Listo, quedaste inscripto!</p>
+        <p className="font-display text-2xl uppercase">¡Listo, quedaste inscripto!</p>
         <p className="mt-2 text-paper/80">
           {course.is_paid
             ? "Te vamos a contactar para coordinar el pago y confirmar tu lugar."
@@ -54,7 +54,7 @@ export default function EnrollForm({ course }) {
   return (
     <form onSubmit={handleSubmit} className="bg-panel border border-line p-6 space-y-4">
       <div>
-        <label className="block text-sm mb-1" htmlFor="fullName">
+          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="fullName">
           Nombre y apellido
         </label>
         <input
@@ -65,7 +65,7 @@ export default function EnrollForm({ course }) {
         />
       </div>
       <div>
-        <label className="block text-sm mb-1" htmlFor="email">
+          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="email">
           Email
         </label>
         <input
@@ -77,7 +77,7 @@ export default function EnrollForm({ course }) {
         />
       </div>
       <div>
-        <label className="block text-sm mb-1" htmlFor="phone">
+          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="phone">
           Teléfono
         </label>
         <input

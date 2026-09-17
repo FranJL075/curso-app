@@ -1,21 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  /* Paleta: "academia nocturna" — tinta verde-bosque profunda + latón cálido */
-  --ink: #16241f;
-  --ink-soft: #23342c;
-  --paper: #efe9da;
-  --panel: #f8f5ec;
-  --brass: #c89b3c;
-  --brass-dark: #a17d2c;
-  --teal: #3e6259;
-  --line: #d8cfb8;
+  --ink: #101010;
+  --ink-soft: #343434;
+  --paper: #f7f7f5;
+  --panel: #ffffff;
+  --brass: #f58220;
+  --brass-dark: #d8670b;
+  --teal: #234a69;
+  --line: #dedede;
 
   --background: var(--paper);
   --foreground: var(--ink-soft);
 
-  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
 }
 
 @theme inline {
@@ -41,4 +41,11 @@ body {
 
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--ink);
 }
