@@ -1,9 +1,15 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Academia Cursos — Inscribite a nuestros cursos",
+  title: "WeMaster — Inscribite a nuestros cursos",
   description:
     "Elegí un curso, dejá tus datos y te confirmamos el cupo. Formación práctica, cupos limitados.",
+  icons: {
+    icon: {
+      url: "/Logo_We_Master_Stand-2%20-%20copia.jpg",
+      type: "image/jpeg",
+    },
+  },
 };
 
 export default function RootLayout({ children }) {
