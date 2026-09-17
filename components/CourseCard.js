@@ -18,7 +18,7 @@ export default function CourseCard({ course }) {
       className="group block overflow-hidden bg-panel border border-line hover:border-brass hover:-translate-y-1 transition-all"
     >
       <div className="grid md:grid-cols-[minmax(150px,34%)_1fr]">
-        <div className="relative min-h-40 bg-teal">
+        <div className="relative min-h-40 h-full bg-teal">
           {course.image_url ? (
             <Image
               src={course.image_url}

@@ -77,7 +77,7 @@ export default function HomePage() {
 
       <section className="bg-ink text-paper">
         <div className="grid items-stretch md:grid-cols-2">
-          <div className="relative min-h-[520px] overflow-hidden md:min-h-0">
+          <div className="relative aspect-[1275/1650] w-full overflow-hidden md:aspect-[1275/1650]">
             <Image
               src="/WemasterPost.jpg"
               alt="WeMaster: aprende con los mejores estés donde estés"
