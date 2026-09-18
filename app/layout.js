@@ -6,7 +6,7 @@ export const metadata = {
     "Elegí un curso, dejá tus datos y te confirmamos el cupo. Formación práctica, cupos limitados.",
   icons: {
     icon: {
-      url: "/Logo_We_Master_Stand-2%20-%20copia.jpg",
+      url: "/Logo_We_Master_Stand-2copia.jpg",
       type: "image/jpeg",
     },
   },

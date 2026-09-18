@@ -120,7 +120,7 @@ export default function HomePage() {
       </section>
 
       <footer className="font-brand bg-[#393d36] text-paper">
-        <div className="mx-auto flex min-h-48 max-w-6xl items-center justify-between gap-5 px-6 py-14 text-sm">
+        <div className="mx-auto flex min-h-48 w-full max-w-6xl items-center justify-between px-6 py-14 text-sm">
           <span className="relative block h-24 w-64 overflow-hidden" aria-label="WeMaster">
             <Image
               src="/Logo_We_Master_Stand-2.jpg"
@@ -130,7 +130,7 @@ export default function HomePage() {
               className="object-cover object-center"
             />
           </span>
-          <a href="/admin" className="text-paper hover:text-white">
+          <a href="/admin" className="ml-auto text-paper hover:text-white">
             Ingreso administradores
           </a>
         </div>

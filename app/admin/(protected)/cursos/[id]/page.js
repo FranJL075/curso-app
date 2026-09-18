@@ -22,9 +22,18 @@ export default async function EditCoursePage({ params }) {
       </div>
 
       <div>
-        <h2 className="font-display text-xl mb-4">
-          Inscriptos ({enrollments.length})
-        </h2>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="font-display text-xl">
+            Inscriptos ({enrollments.length})
+          </h2>
+          <a
+            href={`/api/admin/courses/${course.id}/contacts`}
+            download
+            className="shrink-0 bg-teal px-3 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:bg-ink transition-colors"
+          >
+            Descargar Excel
+          </a>
+        </div>
         {enrollments.length === 0 ? (
           <p className="text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
         ) : (
