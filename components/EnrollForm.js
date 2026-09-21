@@ -2,9 +2,19 @@
 
 import { useState } from "react";
 
-export default function EnrollForm({ course }) {
+function formatPrice(course) {
+  if (!course.is_paid) return "Sin costo";
+  return ((course.price_cents || 0) / 100).toLocaleString("en-US", {
+    style: "currency",
+    currency: course.currency || "USD",
+    maximumFractionDigits: 0,
+  });
+}
+
+export default function EnrollForm({ course = null, courses = [] }) {
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
   const [errorMsg, setErrorMsg] = useState("");
+  const availableCourses = course ? [course] : courses;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -13,10 +23,11 @@ export default function EnrollForm({ course }) {
 
     const form = new FormData(e.currentTarget);
     const payload = {
-      courseId: course.id,
+      courseId: form.get("courseId"),
       fullName: form.get("fullName"),
       email: form.get("email"),
       phone: form.get("phone"),
+      message: form.get("message"),
     };
 
     try {
@@ -43,50 +54,73 @@ export default function EnrollForm({ course }) {
       <div className="bg-teal text-paper p-6">
         <p className="font-display text-2xl uppercase">¡Listo, quedaste inscripto!</p>
         <p className="mt-2 text-paper/80">
-          {course.is_paid
+          {course?.is_paid
             ? "Te vamos a contactar para coordinar el pago y confirmar tu lugar."
-            : "Te vamos a escribir por email con los próximos pasos."}
+            : "Te vamos a escribir por email con los próximos pasos. También podés llamarnos al 1-305-866-8163."}
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-panel border border-line p-6 space-y-4">
-      <div>
-          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="fullName">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {course ? <input type="hidden" name="courseId" value={course.id} /> : (
+        <div>
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="courseId">Práctica de interés</label>
+          <select id="courseId" name="courseId" required defaultValue="" className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal">
+            <option value="" disabled>Seleccioná una práctica</option>
+            {availableCourses.map((availableCourse) => (
+              <option key={availableCourse.id} value={availableCourse.id}>{availableCourse.title} · {formatPrice(availableCourse)}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="grid gap-5 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="fullName">
           Nombre y apellido
-        </label>
+          </label>
         <input
           id="fullName"
           name="fullName"
           required
-          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+          autoComplete="name"
+          maxLength={100}
+          className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal"
         />
-      </div>
-      <div>
-          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="email">
+        </div>
+        <div>
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="email">
           Email
-        </label>
+          </label>
         <input
           id="email"
           name="email"
           type="email"
           required
-          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+          autoComplete="email"
+          className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal"
         />
-      </div>
-      <div>
-          <label className="block text-xs uppercase tracking-wide font-semibold mb-2" htmlFor="phone">
+        </div>
+        <div>
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="phone">
           Teléfono
-        </label>
+          </label>
         <input
           id="phone"
           name="phone"
           type="tel"
           required
-          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+          autoComplete="tel"
+          inputMode="tel"
+          maxLength={30}
+          className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal"
         />
+        </div>
+        <div className="md:col-span-2">
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="message">Consulta</label>
+          <textarea id="message" name="message" rows="4" maxLength={1000} className="w-full resize-y border border-line bg-white px-3 py-3 outline-none focus:border-teal" placeholder="¿Qué te gustaría aprender?" />
+        </div>
       </div>
 
       {errorMsg ? <p className="text-red-700 text-sm">{errorMsg}</p> : null}
@@ -94,13 +128,13 @@ export default function EnrollForm({ course }) {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="w-full bg-brass text-ink font-medium px-6 py-3 hover:bg-brass-dark transition-colors disabled:opacity-60"
+        className="w-full bg-teal px-6 py-4 font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-ink disabled:opacity-60"
       >
         {status === "sending"
           ? "Enviando..."
-          : course.is_paid
+          : course?.is_paid
           ? "Inscribirme y coordinar el pago"
-          : "Inscribirme"}
+          : "Quiero reservar mi lugar"}
       </button>
     </form>
   );

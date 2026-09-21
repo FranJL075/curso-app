@@ -5,6 +5,10 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function clean(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export async function POST(request) {
   let body;
   try {
@@ -13,16 +17,23 @@ export async function POST(request) {
     return NextResponse.json({ error: "Datos inválidos." }, { status: 400 });
   }
 
-  const { courseId, fullName, email, phone } = body || {};
+  const { courseId, fullName, email, phone, message } = body || {};
+  const normalizedName = clean(fullName);
+  const normalizedEmail = clean(email).toLowerCase();
+  const normalizedPhone = clean(phone);
+  const normalizedMessage = clean(message);
 
-  if (!courseId || !fullName || !email || !phone) {
+  if (!courseId || !normalizedName || !normalizedEmail || !normalizedPhone) {
     return NextResponse.json(
       { error: "Faltan campos obligatorios." },
       { status: 400 }
     );
   }
-  if (!isValidEmail(email)) {
+  if (!isValidEmail(normalizedEmail)) {
     return NextResponse.json({ error: "El email no es válido." }, { status: 400 });
+  }
+  if (normalizedName.length > 100 || normalizedPhone.length > 30 || normalizedMessage.length > 1000) {
+    return NextResponse.json({ error: "Revisá el largo de los datos ingresados." }, { status: 400 });
   }
 
   const course = getCourseById(courseId);
@@ -33,12 +44,13 @@ export async function POST(request) {
   // Nota: acá es donde en el futuro se dispararía la creación del checkout de
   // pago (Mercado Pago / Stripe) si course.is_paid === 1, antes o después de
   // guardar la inscripción, según el flujo que se elija.
-  const enrollment = createEnrollment({
+  createEnrollment({
     courseId: course.id,
-    fullName: String(fullName).trim(),
-    email: String(email).trim().toLowerCase(),
-    phone: String(phone).trim(),
+    fullName: normalizedName,
+    email: normalizedEmail,
+    phone: normalizedPhone,
+    message: normalizedMessage,
   });
 
-  return NextResponse.json({ ok: true, enrollment }, { status: 201 });
+  return NextResponse.json({ ok: true }, { status: 201 });
 }

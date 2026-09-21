@@ -1,9 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "WeMaster — Inscribite a nuestros cursos",
+  title: "WeMaster Prácticas Presenciales | Estética en Miami",
   description:
-    "Elegí un curso, dejá tus datos y te confirmamos el cupo. Formación práctica, cupos limitados.",
+    "Clases online y prácticas presenciales supervisadas de estética en Miami, USA. Grupos reducidos, modelos reales y formación profesional.",
   icons: {
     icon: {
       url: "/Logo_We_Master_Stand-2copia.jpg",
