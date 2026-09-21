@@ -39,6 +39,10 @@ body {
   font-family: var(--font-body);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 input, select, textarea {
   border-radius: 0;
 }
