@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const empty = {
+  category: "Estética facial y aparatología",
   title: "",
   summary: "",
   description: "",
@@ -81,6 +82,20 @@ export default function CourseForm({ courseId, initialCourse }) {
       </div>
 
       <div>
+        <label className="block text-sm mb-1">Categoría</label>
+        <select
+          required
+          value={form.category}
+          onChange={(e) => update("category", e.target.value)}
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        >
+          <option>Estética facial y aparatología</option>
+          <option>Depilación profesional</option>
+          <option>Formación estético-médica</option>
+        </select>
+      </div>
+
+      <div>
         <label className="block text-sm mb-1">Resumen corto (para la tarjeta del listado)</label>
         <input
           required
@@ -122,6 +137,46 @@ export default function CourseForm({ courseId, initialCourse }) {
             className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">Modalidad</label>
+        <input
+          required
+          value={form.modality || ""}
+          onChange={(e) => update("modality", e.target.value)}
+          placeholder="Ej: Presencial · 3 días"
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">Qué incluye</label>
+        <textarea
+          rows={3}
+          value={form.includes || ""}
+          onChange={(e) => update("includes", e.target.value)}
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">Requisitos</label>
+        <textarea
+          rows={3}
+          value={form.requirements || ""}
+          onChange={(e) => update("requirements", e.target.value)}
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">Información de pago</label>
+        <input
+          value={form.payment || ""}
+          onChange={(e) => update("payment", e.target.value)}
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        />
       </div>
 
       <div>

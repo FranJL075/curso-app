@@ -14,7 +14,7 @@ export async function POST(request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Datos inválidos." }, { status: 400 });
+    return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
   }
 
   const { courseId, fullName, email, phone, message } = body || {};

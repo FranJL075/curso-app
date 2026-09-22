@@ -21,9 +21,9 @@ export default function Benefits() {
     <section id="beneficios" className="bg-teal text-paper">
       <div className="mx-auto max-w-6xl px-6 py-8 md:py-10">
         <div className="max-w-2xl">
-          <h2 className="font-display mt-3 text-5xl uppercase leading-none md:text-7xl">Aprendé haciendo</h2>
+          <h2 className="font-display mt-3 text-5xl uppercase leading-none md:text-7xl">Aprende haciendo</h2>
           <p className="mt-3 max-w-xl text-paper/75 leading-relaxed">
-            La teoría online te prepara y la práctica presencial, con un instructor a tu lado, te transforma en profesional.
+            La teoría online te prepara y la práctica presencial, con un instructor a tu lado, te convierte en profesional.
           </p>
         </div>
         <div className="mt-4 grid items-stretch gap-px bg-paper/20 md:grid-cols-3">

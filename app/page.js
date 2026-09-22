@@ -1,6 +1,6 @@
 import Hero from "@/components/Hero";
 import Benefits from "@/components/Benefits";
-import CourseCard from "@/components/CourseCard";
+import CourseCatalog from "@/components/CourseCatalog";
 import { getActiveCourses } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,37 +32,30 @@ export default function HomePage() {
       </header>
       <Hero />
 
-      <Benefits />
-
       <section id="catalogo" className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         <div className="mb-10 flex items-end justify-between gap-5">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-brass">Elegí tu próxima práctica</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-brass">Elige tu próxima práctica</p>
             <h2 className="font-display text-5xl uppercase">Catálogo presencial</h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft/60">Precios en USD. Grupos profesionales, modelos reales y acompañamiento durante toda la clase.</p>
           </div>
         </div>
 
-        {courses.length === 0 ? (
-            <p className="text-ink-soft/60 border border-line p-8 text-center">
-            Todavía no hay clases cargadas.
-          </p>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2">
-            {courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        )}
+        <CourseCatalog courses={courses} />
+        <p className="mt-10 max-w-3xl border-l-2 border-brass pl-5 text-sm leading-relaxed text-ink-soft/70">
+          La formación y los certificados no sustituyen una licencia profesional ni amplían su alcance. La realización de procedimientos depende de las credenciales, la supervisión y la normativa aplicable.
+        </p>
       </section>
+
+      <Benefits />
 
       <section id="garantia" className="bg-brass text-white">
         <div className="mx-auto max-w-6xl px-6 py-14 md:flex md:items-start md:justify-between md:gap-10">
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white">Garantía WeMaster</p>
-            <h2 className="font-display text-4xl uppercase text-white">Formate con respaldo profesional</h2>
+            <h2 className="font-display text-4xl uppercase text-white">Fórmate con respaldo profesional</h2>
           </div>
-          <p className="mt-5 max-w-xl leading-relaxed text-white md:mt-7">Recibí certificado oficial, material de apoyo y asesoría de nuestros profesionales. Practicá con acompañamiento y llevate herramientas para trabajar con más seguridad.</p>
+          <p className="mt-5 max-w-xl leading-relaxed text-white md:mt-7">Recibe certificado oficial, material de apoyo y asesoría de nuestros profesionales. Practica con acompañamiento y lleva herramientas para trabajar con más seguridad.</p>
         </div>
       </section>
 

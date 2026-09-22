@@ -27,6 +27,26 @@ export default async function CoursePage({ params }) {
           <p className="text-lg leading-relaxed whitespace-pre-line">
             {course.description}
           </p>
+          <div className="mt-10 grid gap-6 border-t border-line pt-8 sm:grid-cols-2">
+            {course.includes ? (
+              <div>
+                <h2 className="font-display text-2xl uppercase">Incluye</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft/75">{course.includes}</p>
+              </div>
+            ) : null}
+            {course.requirements ? (
+              <div>
+                <h2 className="font-display text-2xl uppercase">Requisitos</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft/75">{course.requirements}</p>
+              </div>
+            ) : null}
+            {course.payment ? (
+              <div>
+                <h2 className="font-display text-2xl uppercase">Pago</h2>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft/75">{course.payment}</p>
+              </div>
+            ) : null}
+          </div>
         </article>
 
         <div>

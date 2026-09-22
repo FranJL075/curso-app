@@ -44,7 +44,7 @@ export default function EnrollForm({ course = null, courses = [] }) {
       }
       setStatus("done");
     } catch {
-      setErrorMsg("Hubo un problema de conexión. Probá de nuevo.");
+      setErrorMsg("Hubo un problema de conexión. Intenta nuevamente.");
       setStatus("error");
     }
   }
@@ -52,11 +52,11 @@ export default function EnrollForm({ course = null, courses = [] }) {
   if (status === "done") {
     return (
       <div className="bg-teal text-paper p-6">
-        <p className="font-display text-2xl uppercase">¡Listo, quedaste inscripto!</p>
+        <p className="font-display text-2xl uppercase">¡Listo, completaste tu inscripción!</p>
         <p className="mt-2 text-paper/80">
           {course?.is_paid
             ? "Te vamos a contactar para coordinar el pago y confirmar tu lugar."
-            : "Te vamos a escribir por email con los próximos pasos. También podés llamarnos al 1-305-866-8163."}
+            : "Te escribiremos por email con los próximos pasos. También puedes llamarnos al 1-305-866-8163."}
         </p>
       </div>
     );
@@ -68,7 +68,7 @@ export default function EnrollForm({ course = null, courses = [] }) {
         <div>
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide" htmlFor="courseId">Práctica de interés</label>
           <select id="courseId" name="courseId" required defaultValue="" className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal">
-            <option value="" disabled>Seleccioná una práctica</option>
+            <option value="" disabled>Selecciona una práctica</option>
             {availableCourses.map((availableCourse) => (
               <option key={availableCourse.id} value={availableCourse.id}>{availableCourse.title} · {formatPrice(availableCourse)}</option>
             ))}

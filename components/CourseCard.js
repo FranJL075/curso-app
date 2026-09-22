@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 function formatPrice(course) {
+  if (course.price_label) return course.price_label;
   if (!course.is_paid) return "Sin costo";
   const amount = (course.price_cents || 0) / 100;
   return amount.toLocaleString("es-AR", {
@@ -31,16 +32,15 @@ export default function CourseCard({ course }) {
         </div>
         <div className="flex min-h-0 flex-col p-6 md:p-7">
           <div className="flex items-baseline justify-between gap-4 text-xs uppercase tracking-wide text-ink-soft/60">
-            <span>{course.duration}</span>
-            <span className="shrink-0 font-semibold text-teal">{formatPrice(course)}</span>
+            <span>{course.modality || course.duration}</span>
           </div>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brass">{course.category}</p>
           <h3 className="font-display text-3xl uppercase mt-4 group-hover:text-brass transition-colors">
             {course.title}
           </h3>
           <p className="mt-3 line-clamp-3 text-ink-soft/75 text-sm leading-relaxed">{course.summary}</p>
-          {course.spots ? (
-            <p className="mt-auto pt-5 text-xs uppercase tracking-wide text-teal font-semibold">{course.spots} cupos disponibles</p>
-          ) : null}
+          {course.includes ? <p className="mt-4 line-clamp-2 text-xs leading-relaxed text-ink-soft/60"><strong>Incluye:</strong> {course.includes}</p> : null}
+          <p className="mt-auto pt-5 text-xs font-semibold uppercase tracking-wide text-teal">{formatPrice(course)}</p>
         </div>
       </div>
     </Link>
