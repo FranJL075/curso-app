@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCourseBySlug } from "@/lib/db";
 import EnrollForm from "@/components/EnrollForm";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,7 @@ export default async function CoursePage({ params }) {
 
   return (
     <main className="flex-1">
+      <SiteHeader />
       <div className="bg-ink text-paper">
         <div className="mx-auto max-w-6xl px-6 py-16">
           <Link href="/" className="text-paper/60 text-sm hover:text-paper">
@@ -53,6 +56,7 @@ export default async function CoursePage({ params }) {
           <EnrollForm course={course} />
         </div>
       </div>
+      <SiteFooter />
     </main>
   );
 }
