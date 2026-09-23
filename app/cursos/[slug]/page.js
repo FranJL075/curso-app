@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getCourseBySlug } from "@/lib/db";
 import EnrollForm from "@/components/EnrollForm";
 import SiteHeader from "@/components/SiteHeader";
@@ -15,13 +16,25 @@ export default async function CoursePage({ params }) {
   return (
     <main className="flex-1">
       <SiteHeader />
-      <div className="bg-ink text-paper">
-        <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="relative isolate min-h-[520px] overflow-hidden bg-ink text-paper md:min-h-[600px]">
+        {course.image_url ? (
+          <Image
+            src={course.image_url}
+            alt=""
+            fill
+            sizes="100vw"
+            quality={100}
+            className="-z-20 object-cover"
+            priority
+          />
+        ) : null}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/55 to-black/15" />
+        <div className="mx-auto flex min-h-[520px] max-w-6xl flex-col justify-end px-6 py-10 md:min-h-[600px] md:py-14">
           <Link href="/" className="text-paper/60 text-sm hover:text-paper">
             ← Volver a cursos
           </Link>
-          <h1 className="font-display text-5xl md:text-7xl uppercase mt-5 max-w-2xl">{course.title}</h1>
-          <p className="mt-4 text-brass uppercase text-sm tracking-wide">{course.duration}</p>
+          <h1 className="mt-5 max-w-3xl font-display text-5xl uppercase leading-[0.9] md:text-8xl">{course.title}</h1>
+          <p className="mt-5 text-sm uppercase tracking-wide text-brass">{course.duration}</p>
         </div>
       </div>
 

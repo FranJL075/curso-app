@@ -16,7 +16,7 @@ export default function CourseCard({ course }) {
   return (
     <Link
       href={`/cursos/${course.slug}`}
-      className="group block min-h-[380px] overflow-hidden border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass"
+      className="group block h-[500px] overflow-hidden border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass md:h-[400px]"
     >
       <div className="grid h-full md:grid-cols-[minmax(150px,34%)_1fr]">
         <div className="relative min-h-40 h-full bg-teal">
@@ -25,7 +25,8 @@ export default function CourseCard({ course }) {
               src={course.image_url}
               alt={course.title}
               fill
-              sizes="(min-width: 768px) 18vw, 100vw"
+              sizes="(min-width: 1280px) 392px, (min-width: 768px) 34vw, 100vw"
+              quality={100}
               className="object-cover"
             />
           ) : null}
