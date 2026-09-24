@@ -2,15 +2,15 @@ import { notFound } from "next/navigation";
 import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
 import CourseForm from "@/components/CourseForm";
 import DeleteCourseButton from "@/components/DeleteCourseButton";
-import SendReminderButton from "@/components/SendReminderButton";
+import ReminderForm from "@/components/ReminderForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditCoursePage({ params }) {
   const { id } = await params;
-  const course = getCourseById(id);
+  const course = await getCourseById(id);
   if (!course) notFound();
-  const enrollments = getEnrollmentsByCourse(id);
+  const enrollments = await getEnrollmentsByCourse(id);
 
   return (
     <div className="grid gap-10 md:grid-cols-2">
@@ -28,10 +28,10 @@ export default async function EditCoursePage({ params }) {
             Inscriptos ({enrollments.length})
           </h2>
           <div className="ml-[200px] flex flex-nowrap gap-2">
-            <SendReminderButton
-              courseId={course.id}
-              courseTitle={course.title}
-              recipientCount={enrollments.length}
+            <ReminderForm
+                courseId={course.id}
+                courseTitle={course.title}
+                enrollments={enrollments} 
             />
             <a
               href={`/api/admin/courses/${course.id}/contacts`}
@@ -42,6 +42,12 @@ export default async function EditCoursePage({ params }) {
             </a>
           </div>
         </div>
+        <ReminderForm
+          courseId={course.id}
+          courseTitle={course.title}
+          recipientCount={enrollments.filter((en) => en.wants_reminders).length}
+          testMode={process.env.EMAIL_TEST_MODE === "true"}
+        />
         {enrollments.length === 0 ? (
           <p className="text-left text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
         ) : (

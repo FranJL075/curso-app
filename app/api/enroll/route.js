@@ -17,7 +17,7 @@ export async function POST(request) {
     return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
   }
 
-  const { courseId, fullName, email, phone, message } = body || {};
+  const { courseId, fullName, email, phone, message, wantsReminders } = body || {};
   const normalizedName = clean(fullName);
   const normalizedEmail = clean(email).toLowerCase();
   const normalizedPhone = clean(phone);
@@ -36,7 +36,7 @@ export async function POST(request) {
     return NextResponse.json({ error: "Revisá el largo de los datos ingresados." }, { status: 400 });
   }
 
-  const course = getCourseById(courseId);
+  const course = await getCourseById(courseId);
   if (!course || !course.is_active) {
     return NextResponse.json({ error: "El curso no existe o no está activo." }, { status: 404 });
   }
@@ -44,13 +44,35 @@ export async function POST(request) {
   // Nota: acá es donde en el futuro se dispararía la creación del checkout de
   // pago (Mercado Pago / Stripe) si course.is_paid === 1, antes o después de
   // guardar la inscripción, según el flujo que se elija.
-  createEnrollment({
+ 
+  try {
+  await createEnrollment({
     courseId: course.id,
     fullName: normalizedName,
     email: normalizedEmail,
     phone: normalizedPhone,
     message: normalizedMessage,
+    wantsReminders: Boolean(wantsReminders),
   });
+} catch (error) {
+  console.error("No se pudo guardar la inscripción:", error);
 
-  return NextResponse.json({ ok: true }, { status: 201 });
+  const message = error.message.includes("DATABASE_URL")
+    ? error.message
+    : "No se pudo guardar la inscripción.";
+
+  return NextResponse.json({ error: message }, { status: 500 });
+}
+
+const { sendEnrollmentConfirmation } = await import("@/lib/mail");
+
+await sendEnrollmentConfirmation({
+  to: normalizedEmail,
+  name: normalizedName,
+  courseTitle: course.title,
+}).catch((error) => {
+  console.error("No se pudo enviar la confirmación:", error);
+});
+
+return NextResponse.json({ ok: true }, { status: 201 });
 }

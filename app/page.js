@@ -7,13 +7,16 @@ import { getActiveCourses } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const courses = getActiveCourses();
+export default async function HomePage() {
+  const [courses, bannerUrl] = await Promise.all([
+    getActiveCourses(),
+    import("@/lib/db").then(({ getSiteSetting }) => getSiteSetting("courses_banner_url")),
+  ]);
 
   return (
     <main className="flex-1">
       <SiteHeader />
-      <Hero />
+      <Hero bannerUrl={bannerUrl} />
 
       <section id="catalogo" className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         <div className="mb-10 flex items-end justify-between gap-5">

@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
   }
 
   const { id } = await params;
-  const course = getCourseById(id);
+  const course = await getCourseById(id);
   if (!course) {
     return NextResponse.json({ error: "Curso no encontrado." }, { status: 404 });
   }
@@ -35,7 +35,7 @@ export async function GET(request, { params }) {
       "Estado de pago",
       "Fecha de registro",
     ],
-    ...getEnrollmentsByCourse(id).map((enrollment) => [
+    ...(await getEnrollmentsByCourse(id)).map((enrollment) => [
       course.title,
       enrollment.full_name,
       enrollment.email,

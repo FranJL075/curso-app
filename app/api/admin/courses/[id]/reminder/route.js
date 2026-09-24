@@ -1,95 +1,78 @@
-import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/requireAdmin";
-import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
+import { getCourseById, getEnrollmentsByCourse, markEnrollmentReminderSent } from "@/lib/db";
 
-function clean(value) {
-  return typeof value === "string" ? value.trim() : "";
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_SUBJECT_LENGTH = 180;
+const MAX_MESSAGE_LENGTH = 10000;
+
+function escapeHtml(value) {
+  return value.replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+  })[character]);
+}
+
+function personalize(value, enrollment, courseTitle) {
+  return value.replaceAll("{{nombre}}", enrollment.full_name).replaceAll("{{curso}}", courseTitle);
+}
+
+function textToHtml(value) {
+  return escapeHtml(value).replaceAll("\n", "<br />");
 }
 
 export async function POST(request, { params }) {
-  if (!(await isAdminRequest())) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
+  if (!(await isAdminRequest())) return NextResponse.json({ error: "No autorizado." }, { status: 401 });
 
   const { id } = await params;
-  const course = getCourseById(id);
-  if (!course) {
-    return NextResponse.json({ error: "Curso no encontrado." }, { status: 404 });
-  }
+  if (!/^\d+$/.test(String(id))) return NextResponse.json({ error: "Curso inválido." }, { status: 400 });
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
-  }
+  const data = await request.json().catch(() => ({}));
+  const subject = typeof data.subject === "string" ? data.subject.trim() : "";
+  const message = typeof data.message === "string" ? data.message.trim() : "";
+  if (!subject || subject.length > MAX_SUBJECT_LENGTH) return NextResponse.json({ error: "El asunto es obligatorio y demasiado largo." }, { status: 400 });
+  if (!message || message.length > MAX_MESSAGE_LENGTH) return NextResponse.json({ error: "El mensaje es obligatorio y demasiado largo." }, { status: 400 });
 
-  const subject = clean(body?.subject);
-  const message = clean(body?.message);
-  if (!subject || !message) {
-    return NextResponse.json(
-      { error: "El asunto y el mensaje son obligatorios." },
-      { status: 400 }
-    );
-  }
-  if (subject.length > 200 || message.length > 10000) {
-    return NextResponse.json(
-      { error: "El asunto o el mensaje exceden el largo permitido." },
-      { status: 400 }
-    );
-  }
+  const course = await getCourseById(id);
+  if (!course) return NextResponse.json({ error: "Curso no encontrado." }, { status: 404 });
 
-  const recipients = getEnrollmentsByCourse(id).reduce((unique, enrollment) => {
-    const email = clean(enrollment.email).toLowerCase();
-    if (email && !unique.has(email)) unique.set(email, enrollment.full_name);
-    return unique;
-  }, new Map());
-
-  if (recipients.size === 0) {
-    return NextResponse.json(
-      { error: "No hay inscriptos con email para este curso." },
-      { status: 400 }
-    );
-  }
-
-  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
-    return NextResponse.json(
-      { error: "El servicio de email no está configurado en el servidor." },
-      { status: 500 }
-    );
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const results = await Promise.all(
-    [...recipients].map(async ([email, fullName]) => {
-      const greeting = fullName ? `Hola ${fullName},\n\n` : "";
-      try {
-        const { error } = await resend.emails.send({
-          from: process.env.EMAIL_FROM,
-          to: email,
-          subject,
-          text: `${greeting}${message}`,
-        });
-        return !error;
-      } catch {
-        return false;
-      }
-    })
+  const enrollments = (await getEnrollmentsByCourse(id)).filter(
+    (enrollment) => enrollment.wants_reminders === true && EMAIL_PATTERN.test(enrollment.email)
   );
+  if (enrollments.length === 0) return NextResponse.json({ error: "No hay inscriptos con recordatorios habilitados y email válido." }, { status: 400 });
 
-  const sent = results.filter(Boolean).length;
-  const failed = results.length - sent;
-  if (sent === 0) {
-    return NextResponse.json(
-      {
-        error: "No se pudo enviar ningún email. Revisá la configuración del servicio.",
-        sent,
-        failed,
-        total: results.length,
-      },
-      { status: 502 }
-    );
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.EMAIL_FROM;
+  const testMode = process.env.EMAIL_TEST_MODE === "true";
+  const testRecipient = process.env.EMAIL_TEST_RECIPIENT;
+  if (!apiKey || !from || (testMode && !EMAIL_PATTERN.test(testRecipient || ""))) {
+    console.error("Configuración de email incompleta para recordatorios.");
+    return NextResponse.json({ error: "El servicio de email no está configurado." }, { status: 500 });
   }
-  return NextResponse.json({ sent, failed, total: results.length });
+
+  const resend = new Resend(apiKey);
+  const results = await Promise.allSettled(enrollments.map(async (enrollment) => {
+    const personalizedMessage = personalize(message, enrollment, course.title);
+    const { error } = await resend.emails.send({
+      from,
+      to: testMode ? testRecipient : enrollment.email,
+      subject: personalize(subject, enrollment, course.title),
+      text: personalizedMessage,
+      html: `<p>${textToHtml(personalizedMessage)}</p>`,
+    });
+    if (error) throw new Error(error.message || "Resend rechazó el email");
+    if (!testMode) await markEnrollmentReminderSent(enrollment.id);
+  }));
+
+  const sent = results.filter((result) => result.status === "fulfilled").length;
+  const failed = results.length - sent;
+  results.forEach((result, index) => {
+    if (result.status === "rejected") console.error("Falló el recordatorio para enrollment", enrollments[index].id, result.reason);
+  });
+  if (sent === 0) return NextResponse.json({ error: "No se pudieron enviar los recordatorios." }, { status: 502 });
+  return NextResponse.json({
+    sent,
+    failed,
+    message: failed ? `Se enviaron ${sent} de ${results.length} recordatorios. ${failed} envíos fallaron.` : `Recordatorio enviado correctamente a ${sent} inscriptos.`,
+  });
 }

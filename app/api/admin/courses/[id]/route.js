@@ -12,9 +12,9 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
   const { id } = await params;
-  const course = getCourseById(id);
+  const course = await getCourseById(id);
   if (!course) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
-  const enrollments = getEnrollmentsByCourse(id);
+  const enrollments = await getEnrollmentsByCourse(id);
   return NextResponse.json({ course, enrollments });
 }
 
@@ -24,7 +24,7 @@ export async function PUT(request, { params }) {
   }
   const { id } = await params;
   const data = await request.json().catch(() => ({}));
-  const course = updateCourse(id, data);
+  const course = await updateCourse(id, data);
   if (!course) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
   return NextResponse.json({ course });
 }
@@ -34,6 +34,7 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
   const { id } = await params;
-  deleteCourse(id);
-  return NextResponse.json({ ok: true });
+  const course = await deleteCourse(id);
+  if (!course) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
+  return NextResponse.json({ ok: true, course });
 }

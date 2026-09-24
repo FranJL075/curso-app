@@ -28,6 +28,7 @@ export default function EnrollForm({ course = null, courses = [] }) {
       email: form.get("email"),
       phone: form.get("phone"),
       message: form.get("message"),
+      wantsReminders: form.get("wantsReminders") === "on",
     };
 
     try {
@@ -122,6 +123,11 @@ export default function EnrollForm({ course = null, courses = [] }) {
           <textarea id="message" name="message" rows="4" maxLength={1000} className="w-full resize-y border border-line bg-white px-3 py-3 outline-none focus:border-teal" placeholder="¿Qué te gustaría aprender?" />
         </div>
       </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="wantsReminders" />
+        Quiero recibir recordatorios por email
+      </label>
 
       {errorMsg ? <p className="text-red-700 text-sm">{errorMsg}</p> : null}
 
