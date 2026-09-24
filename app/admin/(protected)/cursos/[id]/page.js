@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
 import CourseForm from "@/components/CourseForm";
 import DeleteCourseButton from "@/components/DeleteCourseButton";
+import SendReminderButton from "@/components/SendReminderButton";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default async function EditCoursePage({ params }) {
   const enrollments = getEnrollmentsByCourse(id);
 
   return (
-    <div className="grid gap-10 md:grid-cols-[1.3fr_1fr]">
+    <div className="grid gap-10 md:grid-cols-2">
       <div>
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-display text-3xl">Editar curso</h1>
@@ -22,20 +23,27 @@ export default async function EditCoursePage({ params }) {
       </div>
 
       <div>
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="font-display text-xl">
+        <div className="mb-4 flex flex-nowrap items-center">
+          <h2 className="shrink-0 whitespace-nowrap font-display text-xl">
             Inscriptos ({enrollments.length})
           </h2>
-          <a
-            href={`/api/admin/courses/${course.id}/contacts`}
-            download
-            className="shrink-0 bg-teal px-3 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:bg-ink transition-colors"
-          >
-            Descargar Excel
-          </a>
+          <div className="ml-[200px] flex flex-nowrap gap-2">
+            <SendReminderButton
+              courseId={course.id}
+              courseTitle={course.title}
+              recipientCount={enrollments.length}
+            />
+            <a
+              href={`/api/admin/courses/${course.id}/contacts`}
+              download
+              className="shrink-0 bg-teal px-3 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:bg-ink transition-colors"
+            >
+              Descargar Excel
+            </a>
+          </div>
         </div>
         {enrollments.length === 0 ? (
-          <p className="text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
+          <p className="text-left text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
         ) : (
           <div className="divide-y divide-line border border-line bg-panel text-sm">
             {enrollments.map((en) => (

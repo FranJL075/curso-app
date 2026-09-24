@@ -70,7 +70,7 @@ export default function CourseForm({ courseId, initialCourse }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-panel border border-line p-6 space-y-5 max-w-2xl">
+    <form onSubmit={handleSubmit} className="w-full bg-panel border border-line p-6 space-y-5 max-w-none">
       <div>
         <label className="block text-sm mb-1">Título</label>
         <input
