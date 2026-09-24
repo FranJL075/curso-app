@@ -45,13 +45,13 @@ export default function ReminderForm({ courseId, courseTitle, recipientCount, te
   }
 
   return (
-    <div className="mb-6">
+    <div className="mb-0">
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full border border-teal px-4 py-3 text-left text-sm font-semibold text-teal hover:bg-teal hover:text-paper transition-colors"
+        className="w-auto min-w-[140px] border border-teal px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wide text-teal transition-colors hover:bg-teal hover:text-paper"
       >
-        Enviar recordatorio ({recipientCount})
+        Recordatorio ({recipientCount})
       </button>
 
       {feedback ? (

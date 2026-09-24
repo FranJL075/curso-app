@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
 import CourseForm from "@/components/CourseForm";
@@ -15,6 +16,14 @@ export default async function EditCoursePage({ params }) {
   return (
     <div className="grid gap-10 md:grid-cols-2">
       <div>
+        <div className="mb-4">
+          <Link
+            href="/admin"
+            className="inline-flex items-center text-sm font-medium text-ink-soft/70 transition-colors hover:text-ink"
+          >
+            ← Volver al panel
+          </Link>
+        </div>
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-display text-3xl">Editar curso</h1>
           <DeleteCourseButton courseId={course.id} />
@@ -23,33 +32,30 @@ export default async function EditCoursePage({ params }) {
       </div>
 
       <div>
-        <div className="mb-4 flex flex-nowrap items-center">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="shrink-0 whitespace-nowrap font-display text-xl">
             Inscriptos ({enrollments.length})
           </h2>
-          <div className="ml-[200px] flex flex-nowrap gap-2">
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
             <ReminderForm
-                courseId={course.id}
-                courseTitle={course.title}
-                enrollments={enrollments} 
+              courseId={course.id}
+              courseTitle={course.title}
+              recipientCount={enrollments.length}
+              testMode={process.env.EMAIL_TEST_MODE === "true"}
             />
             <a
               href={`/api/admin/courses/${course.id}/contacts`}
               download
-              className="shrink-0 bg-teal px-3 py-2 text-xs font-semibold uppercase tracking-wide text-paper hover:bg-ink transition-colors"
+              className="shrink-0 rounded-sm bg-teal px-2.5 py-2 text-[10px] font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-ink"
             >
               Descargar Excel
             </a>
           </div>
         </div>
-        <ReminderForm
-          courseId={course.id}
-          courseTitle={course.title}
-          recipientCount={enrollments.filter((en) => en.wants_reminders).length}
-          testMode={process.env.EMAIL_TEST_MODE === "true"}
-        />
         {enrollments.length === 0 ? (
-          <p className="text-left text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
+          <p className="flex min-h-[220px] items-center justify-center text-center text-ink-soft/60 text-sm">
+            Todavía no hay inscripciones.
+          </p>
         ) : (
           <div className="divide-y divide-line border border-line bg-panel text-sm">
             {enrollments.map((en) => (

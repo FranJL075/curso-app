@@ -29,12 +29,59 @@ export default function CourseForm({ courseId, initialCourse }) {
     : {};
   const [form, setForm] = useState({ ...empty, ...initial });
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [error, setError] = useState("");
 
   const isEdit = Boolean(courseId);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  async function handleImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 10 * 1024 * 1024;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError("Solo podés subir JPG, PNG o WEBP.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > maxSize) {
+      setUploadError("La imagen debe pesar menos de 10 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setUploadingImage(true);
+    setUploadError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "No se pudo subir la imagen.");
+      }
+
+      update("image_url", data.url || "");
+    } catch (uploadErr) {
+      setUploadError(uploadErr.message || "No se pudo subir la imagen.");
+    } finally {
+      setUploadingImage(false);
+      event.target.value = "";
+    }
   }
 
   async function handleSubmit(e) {
@@ -191,7 +238,19 @@ export default function CourseForm({ courseId, initialCourse }) {
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Imagen del curso (URL opcional)</label>
+        <label className="block text-sm mb-1">Imagen del curso</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleImageUpload}
+          disabled={uploadingImage}
+          className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+        />
+        <p className="mt-1 text-xs text-ink-soft/50">Máx. 10 MB · JPG, PNG o WEBP</p>
+        {uploadingImage ? <p className="mt-2 text-xs text-teal">Subiendo imagen...</p> : null}
+        {uploadError ? <p className="mt-2 text-xs text-red-700">{uploadError}</p> : null}
+
+        <label className="mt-4 block text-sm mb-1">O pegá una URL pública</label>
         <input
           value={form.image_url || ""}
           onChange={(e) => update("image_url", e.target.value)}
@@ -203,10 +262,6 @@ export default function CourseForm({ courseId, initialCourse }) {
             <Image src={form.image_url} alt="Vista previa del curso" fill unoptimized className="object-cover" />
           </div>
         ) : null}
-        <p className="text-xs text-ink-soft/50 mt-1">
-          Por ahora se pega una URL. Se puede sumar subida de archivos más adelante
-          (Vercel Blob / Supabase Storage) sin cambiar el resto del formulario.
-        </p>
       </div>
 
       <div className="border-t border-line pt-4">

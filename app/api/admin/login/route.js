@@ -2,14 +2,13 @@ import { NextResponse } from "next/server";
 import { verifyCredentials, createSessionCookieValue, ADMIN_COOKIE_NAME } from "@/lib/auth";
 
 export async function POST(request) {
-  const { email, password } = await request.json().catch(() => ({}));
-  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
-  const user = normalizedEmail && typeof password === "string"
-    ? await verifyCredentials(normalizedEmail, password)
+  const { password } = await request.json().catch(() => ({}));
+  const user = typeof password === "string"
+    ? await verifyCredentials(password)
     : null;
 
   if (!user) {
-    return NextResponse.json({ error: "Email o contraseña incorrectos." }, { status: 401 });
+    return NextResponse.json({ error: "Contraseña incorrecta." }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });

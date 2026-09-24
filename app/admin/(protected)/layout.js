@@ -18,12 +18,6 @@ export default async function ProtectedAdminLayout({ children }) {
             <Link href="/" className="text-paper/70 hover:text-paper">
               Ver sitio público
             </Link>
-            <Link href="/admin/cuenta" className="text-paper/70 hover:text-paper">
-              Mi cuenta
-            </Link>
-            <Link href="/admin/configuracion" className="text-paper/70 hover:text-paper">
-              Configuración
-            </Link>
             <LogoutButton />
           </div>
         </div>
