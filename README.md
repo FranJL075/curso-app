@@ -102,3 +102,35 @@ en el código en esos mismos lugares):
    Postgres, ver arriba).
 4. Deploy. El dominio propio se agrega después desde Project Settings →
    Domains, apuntando los registros DNS que Vercel te indique.
+
+## Importar cursos a PostgreSQL
+
+Con `DATABASE_URL` configurada y la tabla `courses` ya creada, ejecutar una sola vez:
+
+```bash
+npm run migrate:courses
+```
+
+El script importa `lib/seedCourses.json` de forma idempotente, conserva los IDs
+del archivo, no elimina datos y reajusta la secuencia de `courses.id`. Si se
+ejecuta nuevamente, verifica los cursos existentes por `slug` y no los duplica.
+
+Antes de restaurar la relación con inscripciones, verificar cursos e inscripciones
+huérfanas:
+
+```sql
+SELECT id, slug, title, is_active FROM courses ORDER BY id;
+
+SELECT e.id, e.course_id
+FROM enrollments e
+LEFT JOIN courses c ON c.id = e.course_id
+WHERE c.id IS NULL;
+```
+
+Solo si la segunda consulta no devuelve filas, restaurar la foreign key:
+
+```sql
+ALTER TABLE enrollments
+ADD CONSTRAINT enrollments_course_id_fkey
+FOREIGN KEY (course_id) REFERENCES courses(id);
+```

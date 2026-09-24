@@ -6,7 +6,7 @@ export async function GET() {
   if (!(await isAdminRequest())) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
-  return NextResponse.json({ courses: getAllCourses() });
+  return NextResponse.json({ courses: await getAllCourses() });
 }
 
 export async function POST(request) {
@@ -23,10 +23,10 @@ export async function POST(request) {
   }
 
   let slug = slugify(data.title);
-  if (getCourseBySlug(slug)) {
+  if (await getCourseBySlug(slug)) {
     slug = `${slug}-${Date.now().toString().slice(-4)}`;
   }
 
-  const course = createCourse({ ...data, slug });
+  const course = await createCourse({ ...data, slug });
   return NextResponse.json({ course }, { status: 201 });
 }

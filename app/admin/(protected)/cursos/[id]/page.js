@@ -2,14 +2,15 @@ import { notFound } from "next/navigation";
 import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
 import CourseForm from "@/components/CourseForm";
 import DeleteCourseButton from "@/components/DeleteCourseButton";
+import ReminderForm from "@/components/ReminderForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditCoursePage({ params }) {
   const { id } = await params;
-  const course = getCourseById(id);
+  const course = await getCourseById(id);
   if (!course) notFound();
-  const enrollments = getEnrollmentsByCourse(id);
+  const enrollments = await getEnrollmentsByCourse(id);
 
   return (
     <div className="grid gap-10 md:grid-cols-[1.3fr_1fr]">
@@ -34,6 +35,12 @@ export default async function EditCoursePage({ params }) {
             Descargar Excel
           </a>
         </div>
+        <ReminderForm
+          courseId={course.id}
+          courseTitle={course.title}
+          recipientCount={enrollments.filter((en) => en.wants_reminders).length}
+          testMode={process.env.EMAIL_TEST_MODE === "true"}
+        />
         {enrollments.length === 0 ? (
           <p className="text-ink-soft/60 text-sm">Todavía no hay inscripciones.</p>
         ) : (

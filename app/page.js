@@ -7,8 +7,8 @@ import { getActiveCourses } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const courses = getActiveCourses();
+export default async function HomePage() {
+  const courses = await getActiveCourses();
 
   return (
     <main className="flex-1">

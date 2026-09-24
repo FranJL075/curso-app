@@ -36,7 +36,7 @@ export async function POST(request) {
     return NextResponse.json({ error: "Revisá el largo de los datos ingresados." }, { status: 400 });
   }
 
-  const course = getCourseById(courseId);
+  const course = await getCourseById(courseId);
   if (!course || !course.is_active) {
     return NextResponse.json({ error: "El curso no existe o no está activo." }, { status: 404 });
   }
@@ -44,13 +44,21 @@ export async function POST(request) {
   // Nota: acá es donde en el futuro se dispararía la creación del checkout de
   // pago (Mercado Pago / Stripe) si course.is_paid === 1, antes o después de
   // guardar la inscripción, según el flujo que se elija.
-  createEnrollment({
-    courseId: course.id,
-    fullName: normalizedName,
-    email: normalizedEmail,
-    phone: normalizedPhone,
-    message: normalizedMessage,
-  });
+  try {
+    await createEnrollment({
+      courseId: course.id,
+      fullName: normalizedName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      message: normalizedMessage,
+    });
+  } catch (error) {
+    console.error("No se pudo guardar la inscripción:", error);
+    const message = error.message.includes("DATABASE_URL")
+      ? error.message
+      : "No se pudo guardar la inscripción.";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }
