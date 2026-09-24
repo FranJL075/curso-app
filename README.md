@@ -1,86 +1,90 @@
-# Academia Cursos — sitio de inscripción a cursos
+# Academia Cursos
 
-Sitio con landing pública + catálogo de cursos + formulario de inscripción,
-y un panel de administración para cargar/editar cursos y ver los inscriptos.
+Aplicación de cursos con Next.js App Router, catálogo público, inscripciones y panel administrativo.
 
-Construido con Next.js (App Router) + Tailwind CSS. Sin pasarela de pago
-todavía, pero con el modelo de datos y el flujo ya preparados para sumarla.
+## Desarrollo local
 
-## Correrlo en tu máquina
+1. Instala dependencias:
 
 ```bash
 npm install
-cp .env.example .env.local   # y completá ADMIN_PASSWORD / ADMIN_SESSION_SECRET
-npm run seed                 # carga 2 cursos de ejemplo
+```
+
+2. Copia `.env.example` a `.env.local` y completa `DATABASE_URL`, `ADMIN_SESSION_SECRET`, `ADMIN_EMAIL` y `ADMIN_INITIAL_PASSWORD`.
+
+3. Inicializa PostgreSQL y carga cursos y el primer administrador:
+
+```bash
+npm run migrate
+npm run seed
+```
+
+4. Ejecuta la aplicación:
+
+```bash
 npm run dev
 ```
 
-Abrí http://localhost:3000 para el sitio público, y
-http://localhost:3000/admin para el panel (la contraseña es la que pusiste
-en `ADMIN_PASSWORD`).
+## Base de datos
 
-## Estructura
+La aplicación usa PostgreSQL mediante `pg`. El esquema está en `db/schema.sql` y se crea con `npm run migrate`. El seed es idempotente: agrega los cursos que no existan y crea el administrador indicado en las variables de entorno sin sobrescribirlo.
 
+Tablas principales:
+
+- `users`: cuentas de administradores y hashes bcrypt.
+- `courses`: cursos, imágenes y fechas.
+- `enrollments`: inscripciones, preferencias de recordatorio y estado de pago.
+- `password_reset_tokens`: tokens hasheados, de un solo uso y con expiración.
+- `site_settings`: configuración editable como `courses_banner_url`.
+
+La aplicación conserva las funciones de acceso a cursos e inscripciones en `lib/db.js`, pero ahora son asíncronas porque consultan PostgreSQL.
+
+## Variables de entorno
+
+- `DATABASE_URL`: conexión PostgreSQL de producción.
+- `ADMIN_SESSION_SECRET`: secreto largo y aleatorio para cookies de sesión.
+- `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_INITIAL_PASSWORD`: datos usados por `npm run seed` para crear el primer administrador.
+- `APP_URL`: URL pública, usada para generar enlaces de recuperación.
+- `RESEND_API_KEY`: API key de Resend.
+- `EMAIL_FROM`: remitente verificado en Resend, por ejemplo `Academia <noreply@tu-dominio.com>`.
+- `CRON_SECRET`: secreto que protege el endpoint de recordatorios.
+
+No se requieren `ADMIN_PASSWORD` ni contraseñas guardadas en archivos. `.env*` está excluido de Git.
+
+## Vercel
+
+Configura todas las variables anteriores en Project Settings > Environment Variables. Usa una base PostgreSQL administrada por Neon, Supabase o Vercel Postgres. Después de configurar `DATABASE_URL`, ejecuta desde un entorno con acceso a la base:
+
+```bash
+npm run migrate
+npm run seed
 ```
-app/
-  page.js                     landing pública (hero + grilla de cursos)
-  cursos/[slug]/page.js       detalle de curso + formulario de inscripción
-  api/enroll/route.js         API pública: guarda una inscripción
-  admin/
-    login/page.js             login del panel
-    (protected)/               todo lo de acá adentro requiere sesión de admin
-      page.js                  dashboard: lista de cursos
-      cursos/nuevo/page.js     alta de curso
-      cursos/[id]/page.js      edición de curso + lista de inscriptos + borrar
-  api/admin/...                API protegida para el CRUD de cursos
 
-lib/
-  db.js            toda la lógica de datos (cursos e inscripciones)
-  auth.js          login del admin (cookie firmada, sin sesión en servidor)
-  requireAdmin.js  helper para proteger las API routes de /admin
+`vercel.json` programa `/api/cron/reminders` una vez por día. Vercel envía el encabezado `Authorization: Bearer <CRON_SECRET>` al endpoint.
 
-components/        UI reutilizable (Hero, CourseCard, EnrollForm, CourseForm, etc.)
-scripts/seed.js     carga cursos de ejemplo
-```
+Para emails, crea una cuenta en Resend, verifica el dominio del remitente y configura `RESEND_API_KEY` y `EMAIL_FROM`. Sin esas variables, las inscripciones siguen guardándose, pero no se envían emails.
 
-## ⚠️ Importante antes de desplegar en Vercel: la base de datos
+## Funcionalidades administrativas
 
-Este proyecto guarda los datos en un archivo JSON. Localmente queda en
-`data/db.json` (sin ninguna dependencia nativa que compilar, para que
-instale sin problemas en cualquier máquina). En Vercel, como el resto del
-proyecto es de solo lectura, automáticamente guarda en `/tmp` en su lugar —
-así que el sitio va a andar y vas a poder probarlo, **pero cualquier curso o
-inscripción que cargues ahí se puede perder** en el próximo deploy o reinicio
-de la función serverless. Sirve para probar que todo funciona, no para
-guardar datos reales de producción.
+- `/admin/login`: acceso con email y contraseña individual.
+- `/admin/cuenta`: cambio de contraseña validando la contraseña actual.
+- `/admin/forgot-password`: recuperación con respuesta genérica para no revelar cuentas.
+- `/admin/reset-password`: restablecimiento mediante token de un solo uso.
+- `/admin/configuracion`: URL del banner principal de cursos.
+- Alta y edición de cursos: URL de imagen con vista previa.
+- Inscripciones: preferencia de recibir recordatorios por email.
 
-Para producción de verdad hay que migrar `lib/db.js` a una base de datos
-hosteada:
+## Pruebas manuales
 
-1. Crear una base Postgres gratuita en **Vercel Postgres**, **Neon** o
-   **Supabase** (cualquiera de las tres sirve, todas se conectan igual desde
-   Next.js).
-2. Reemplazar el contenido de `lib/db.js` para que use esa conexión en vez de
-   `better-sqlite3` — ya sea con **Prisma** (más cómodo para el día a día,
-   requiere correr `npx prisma generate` en tu máquina/en el deploy) o con el
-   driver `pg` directo (más liviano, sin paso extra de generación).
-3. Mantener **los mismos nombres y firmas de función** que ya están en
-   `lib/db.js` (`getActiveCourses`, `createCourse`, `createEnrollment`,
-   etc.) — el resto de la app (páginas, componentes, API routes) no necesita
-   tocarse, porque todos importan de `@/lib/db` y no saben ni les importa
-   qué motor de base de datos hay atrás.
-4. Correr las migraciones (crear las tablas `courses` y `enrollments`, mismo
-   esquema que ya está en `lib/db.js`) contra esa base antes del primer
-   deploy.
+- Login: crea el primer administrador con `npm run seed` y entra en `/admin/login`.
+- Cambio de contraseña: entra en `/admin/cuenta`, usa la contraseña actual y vuelve a iniciar sesión.
+- Recuperación: configura Resend, solicita el enlace en `/admin/forgot-password` y abre la URL recibida.
+- Cursos e imágenes: crea o edita un curso desde el panel, pega una URL de imagen y comprueba la tarjeta y el detalle público.
+- Banner: cambia la URL en `/admin/configuracion` y revisa la portada.
+- Inscripción: completa el formulario público y marca la preferencia de recordatorios.
+- Emails: verifica el email de confirmación; el cron puede probarse con `GET /api/cron/reminders` usando `Authorization: Bearer <CRON_SECRET>`.
 
-## Dónde va el pago cuando lo sumes
-
-El modelo de datos ya está preparado:
-
-- Cada curso tiene `is_paid`, `price_cents`, `currency` (se cargan desde el
-  panel admin, en el formulario de curso).
-- Cada inscripción tiene `payment_status` (`not_required` / `pending_payment`
-  / `paid`) y `payment_reference` para guardar el ID de la transacción.
+## Comandos
 
 Los dos puntos exactos donde hay que enganchar la pasarela (dejé comentarios
 en el código en esos mismos lugares):

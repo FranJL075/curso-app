@@ -1,7 +1,10 @@
-export default function Hero() {
+export default function Hero({ bannerUrl }) {
   return (
     <section className="relative overflow-hidden bg-ink text-paper">
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.84),rgba(0,0,0,.36)),url('https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center" />
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `linear-gradient(90deg,rgba(0,0,0,.84),rgba(0,0,0,.36)),url('${bannerUrl || "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=2000&q=85"}')` }}
+      />
       <div className="relative mx-auto flex min-h-[560px] max-w-6xl items-center px-6 py-20 md:py-24">
         <div>
           <p className="mb-5 text-sm font-semibold uppercase tracking-[0.22em] text-brass">Formación profesional en estética</p>

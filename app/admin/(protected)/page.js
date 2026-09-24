@@ -4,8 +4,10 @@ import { getAllCourses, getAllEnrollments } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const courses = await getAllCourses();
-  const enrollments = await getAllEnrollments();
+  const [courses, enrollments] = await Promise.all([
+    getAllCourses(),
+    getAllEnrollments(),
+  ]);
 
   return (
     <div>

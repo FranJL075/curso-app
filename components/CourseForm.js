@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const empty = {
   category: "Estética facial y aparatología",
@@ -190,13 +191,18 @@ export default function CourseForm({ courseId, initialCourse }) {
       </div>
 
       <div>
-        <label className="block text-sm mb-1">URL de la imagen / banner (opcional)</label>
+        <label className="block text-sm mb-1">Imagen del curso (URL opcional)</label>
         <input
           value={form.image_url || ""}
           onChange={(e) => update("image_url", e.target.value)}
           placeholder="https://..."
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        {form.image_url ? (
+          <div className="relative mt-3 h-40 w-full">
+            <Image src={form.image_url} alt="Vista previa del curso" fill unoptimized className="object-cover" />
+          </div>
+        ) : null}
         <p className="text-xs text-ink-soft/50 mt-1">
           Por ahora se pega una URL. Se puede sumar subida de archivos más adelante
           (Vercel Blob / Supabase Storage) sin cambiar el resto del formulario.
