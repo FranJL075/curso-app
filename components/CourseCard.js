@@ -14,9 +14,9 @@ function formatPrice(course) {
 
 export default function CourseCard({ course }) {
   return (
-    <article className="group block h-full min-h-[500px] border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass md:min-h-[440px]">
+    <article className="group block h-full min-h-0 border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass md:min-h-[440px]">
       <div className="grid h-full md:grid-cols-[minmax(150px,34%)_1fr]">
-        <Link href={`/cursos/${course.slug}`} className="relative block min-h-40 h-full bg-teal" aria-label={`Ver ${course.title}`}>
+        <Link href={`/cursos/${course.slug}`} className="relative block h-32 bg-teal md:min-h-40 md:h-full" aria-label={`Ver ${course.title}`}>
           {course.image_url ? (
             <Image
               src={course.image_url}
@@ -28,17 +28,17 @@ export default function CourseCard({ course }) {
             />
           ) : null}
         </Link>
-        <div className="relative flex min-h-0 flex-col p-6 pb-20 md:p-7 md:pb-20">
-          <div className="flex items-baseline justify-between gap-4 text-xs uppercase tracking-wide text-ink-soft/60">
+        <div className="relative flex min-h-0 flex-col p-4 pb-16 md:p-7 md:pb-20">
+          <div className="hidden items-baseline justify-between gap-4 text-xs uppercase tracking-wide text-ink-soft/60 md:flex">
             <span>{course.modality || course.duration}</span>
           </div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brass">{course.category}</p>
-          <h3 className="mt-4 font-display text-3xl uppercase transition-colors group-hover:text-brass">
+          <p className="mt-4 hidden text-xs font-semibold uppercase tracking-wide text-brass md:block">{course.category}</p>
+          <h3 className="mt-3 font-display text-3xl uppercase transition-colors group-hover:text-brass md:mt-4">
             <Link href={`/cursos/${course.slug}`}>{course.title}</Link>
           </h3>
-          <p className="mt-3 text-ink-soft/75 text-sm leading-relaxed">{course.summary}</p>
-          {course.includes ? <p className="relative top-[5px] mt-4 text-xs leading-relaxed text-ink-soft/60"><strong>Incluye:</strong> {course.includes}</p> : null}
-          <p className="mt-auto pt-5 text-xs font-semibold uppercase tracking-wide text-teal">{formatPrice(course)}</p>
+          <p className="mt-3 hidden text-ink-soft/75 text-sm leading-relaxed md:block">{course.summary}</p>
+          {course.includes ? <p className="relative top-[5px] mt-3 text-xs leading-relaxed text-ink-soft/60 md:mt-4"><strong>Incluye:</strong> {course.includes}</p> : null}
+          <p className="mt-auto pt-3 text-xs font-semibold uppercase tracking-wide text-teal md:pt-5">{formatPrice(course)}</p>
           <Link
             href={`/cursos/${course.slug}`}
             className="absolute bottom-0 right-0 bg-teal px-4 py-3 text-xs font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-ink"

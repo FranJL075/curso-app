@@ -12,13 +12,13 @@ export default function SiteFooter() {
             <Link href="/#garantia" className="transition-colors hover:text-brass hover:underline underline-offset-4">Garantía</Link>
           </nav>
           <div className="flex flex-col items-start gap-4 md:items-end">
-            <span className="relative block h-24 w-64 overflow-hidden md:translate-x-[35px]" aria-label="WeMaster">
+            <span className="relative block h-24 w-64 -translate-x-[30px] overflow-hidden md:translate-x-[35px]" aria-label="WeMaster">
               <Image
                 src="/Logo_We_Master_Stand-2.jpg"
                 alt="WeMaster"
                 fill
                 sizes="256px"
-                className="object-cover object-center"
+                className="object-cover object-left"
               />
             </span>
           </div>
