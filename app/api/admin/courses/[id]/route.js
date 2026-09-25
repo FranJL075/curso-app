@@ -6,6 +6,7 @@ import {
   deleteCourse,
   getEnrollmentsByCourse,
 } from "@/lib/db";
+import { getCourseTextLengthError } from "@/lib/courseLimits";
 
 export async function GET(request, { params }) {
   if (!(await isAdminRequest())) {
@@ -24,6 +25,12 @@ export async function PUT(request, { params }) {
   }
   const { id } = await params;
   const data = await request.json().catch(() => ({}));
+  const current = await getCourseById(id);
+  if (!current) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
+  const textLengthError = getCourseTextLengthError({ ...current, ...data });
+  if (textLengthError) {
+    return NextResponse.json({ error: textLengthError }, { status: 400 });
+  }
   const course = await updateCourse(id, data);
   if (!course) return NextResponse.json({ error: "No encontrado." }, { status: 404 });
   return NextResponse.json({ course });

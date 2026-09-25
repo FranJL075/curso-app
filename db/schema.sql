@@ -33,6 +33,20 @@ CREATE TABLE IF NOT EXISTS courses (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS course_categories (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS course_categories_name_lower_idx ON course_categories (LOWER(name));
+INSERT INTO course_categories (name)
+SELECT DISTINCT TRIM(category)
+FROM courses
+WHERE TRIM(category) <> ''
+ON CONFLICT (LOWER(name)) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS enrollments (
   id BIGSERIAL PRIMARY KEY,
   course_id BIGINT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,

@@ -3,15 +3,9 @@
 import { useState } from "react";
 import CourseCard from "@/components/CourseCard";
 
-const categories = [
-  "Todas",
-  "Estética facial y aparatología",
-  "Depilación profesional",
-  "Formación estético-médica",
-];
-
-export default function CourseCatalog({ courses }) {
+export default function CourseCatalog({ courses, categories = [] }) {
   const [selectedCategory, setSelectedCategory] = useState("Todas");
+  const categoryNames = ["Todas", ...categories.map((category) => category.name)];
   const visibleCourses = selectedCategory === "Todas"
     ? courses
     : courses.filter((course) => course.category === selectedCategory);
@@ -19,7 +13,7 @@ export default function CourseCatalog({ courses }) {
   return (
     <>
       <div className="mb-8 flex flex-wrap gap-3" aria-label="Filtrar capacitaciones por categoría">
-        {categories.map((category) => {
+        {categoryNames.map((category) => {
           const isSelected = selectedCategory === category;
           return (
             <button

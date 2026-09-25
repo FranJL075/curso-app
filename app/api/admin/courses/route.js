@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/requireAdmin";
 import { getAllCourses, createCourse, slugify, getCourseBySlug } from "@/lib/db";
+import { getCourseTextLengthError } from "@/lib/courseLimits";
 
 export async function GET() {
   if (!(await isAdminRequest())) {
@@ -20,6 +21,10 @@ export async function POST(request) {
       { error: "Título, resumen, descripción y duración son obligatorios." },
       { status: 400 }
     );
+  }
+  const textLengthError = getCourseTextLengthError(data);
+  if (textLengthError) {
+    return NextResponse.json({ error: textLengthError }, { status: 400 });
   }
 
   let slug = slugify(data.title);

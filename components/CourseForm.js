@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { COURSE_TEXT_LIMITS } from "@/lib/courseLimits";
 
 const empty = {
-  category: "Estética facial y aparatología",
+  category: "",
   title: "",
   summary: "",
   description: "",
@@ -19,8 +20,14 @@ const empty = {
   is_active: true,
 };
 
-export default function CourseForm({ courseId, initialCourse }) {
+export default function CourseForm({ courseId, initialCourse, categories = [] }) {
   const router = useRouter();
+  const [availableCategories, setAvailableCategories] = useState(() => {
+    if (initialCourse?.category && !categories.some((category) => category.name === initialCourse.category)) {
+      return [...categories, { id: "current", name: initialCourse.category }];
+    }
+    return categories;
+  });
   const initial = initialCourse
     ? {
         ...initialCourse,
@@ -32,11 +39,46 @@ export default function CourseForm({ courseId, initialCourse }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [error, setError] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [categoryError, setCategoryError] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
 
   const isEdit = Boolean(courseId);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  async function handleCreateCategory() {
+    const name = newCategory.trim();
+    if (!name) return;
+
+    setCreatingCategory(true);
+    setCategoryError("");
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setCategoryError(data.error || "No se pudo crear la categoría.");
+        return;
+      }
+
+      setAvailableCategories((current) => (
+        current.some((category) => category.id === data.category.id)
+          ? current
+          : [...current, data.category].sort((a, b) => a.name.localeCompare(b.name))
+      ));
+      update("category", data.category.name);
+      setNewCategory("");
+    } catch {
+      setCategoryError("Hubo un problema de conexión. Intenta nuevamente.");
+    } finally {
+      setCreatingCategory(false);
+    }
   }
 
   async function handleImageUpload(event) {
@@ -123,6 +165,7 @@ export default function CourseForm({ courseId, initialCourse }) {
         <label className="block text-sm mb-1">Título</label>
         <input
           required
+          maxLength={COURSE_TEXT_LIMITS.title}
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
@@ -137,16 +180,36 @@ export default function CourseForm({ courseId, initialCourse }) {
           onChange={(e) => update("category", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         >
-          <option>Estética facial y aparatología</option>
-          <option>Depilación profesional</option>
-          <option>Formación estético-médica</option>
+          <option value="" disabled>Selecciona una categoría</option>
+          {availableCategories.map((category) => (
+            <option key={category.id} value={category.name}>{category.name}</option>
+          ))}
         </select>
+        <div className="mt-2 flex gap-2">
+          <input
+            maxLength={COURSE_TEXT_LIMITS.category}
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="Nueva categoría"
+            className="min-w-0 flex-1 border border-line bg-white px-3 py-2 text-sm outline-none focus:border-teal"
+          />
+          <button
+            type="button"
+            disabled={creatingCategory || !newCategory.trim()}
+            onClick={handleCreateCategory}
+            className="bg-teal px-3 py-2 text-xs font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-ink disabled:opacity-50"
+          >
+            {creatingCategory ? "Creando..." : "Crear categoría"}
+          </button>
+        </div>
+        {categoryError ? <p className="mt-1 text-xs text-red-700">{categoryError}</p> : null}
       </div>
 
       <div>
         <label className="block text-sm mb-1">Resumen corto (para la tarjeta del listado)</label>
         <input
           required
+          maxLength={COURSE_TEXT_LIMITS.summary}
           value={form.summary}
           onChange={(e) => update("summary", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
@@ -157,6 +220,7 @@ export default function CourseForm({ courseId, initialCourse }) {
         <label className="block text-sm mb-1">Descripción completa</label>
         <textarea
           required
+          maxLength={COURSE_TEXT_LIMITS.description}
           rows={6}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
@@ -169,6 +233,7 @@ export default function CourseForm({ courseId, initialCourse }) {
           <label className="block text-sm mb-1">Duración (texto libre)</label>
           <input
             required
+            maxLength={COURSE_TEXT_LIMITS.duration}
             placeholder="Ej: 6 semanas, 4 hs/semana"
             value={form.duration}
             onChange={(e) => update("duration", e.target.value)}
@@ -191,6 +256,7 @@ export default function CourseForm({ courseId, initialCourse }) {
         <label className="block text-sm mb-1">Modalidad</label>
         <input
           required
+          maxLength={COURSE_TEXT_LIMITS.modality}
           value={form.modality || ""}
           onChange={(e) => update("modality", e.target.value)}
           placeholder="Ej: Presencial · 3 días"
@@ -201,6 +267,7 @@ export default function CourseForm({ courseId, initialCourse }) {
       <div>
         <label className="block text-sm mb-1">Qué incluye</label>
         <textarea
+          maxLength={COURSE_TEXT_LIMITS.includes}
           rows={3}
           value={form.includes || ""}
           onChange={(e) => update("includes", e.target.value)}
@@ -211,6 +278,7 @@ export default function CourseForm({ courseId, initialCourse }) {
       <div>
         <label className="block text-sm mb-1">Requisitos</label>
         <textarea
+          maxLength={COURSE_TEXT_LIMITS.requirements}
           rows={3}
           value={form.requirements || ""}
           onChange={(e) => update("requirements", e.target.value)}
@@ -221,6 +289,7 @@ export default function CourseForm({ courseId, initialCourse }) {
       <div>
         <label className="block text-sm mb-1">Información de pago</label>
         <input
+          maxLength={COURSE_TEXT_LIMITS.payment}
           value={form.payment || ""}
           onChange={(e) => update("payment", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
@@ -252,6 +321,7 @@ export default function CourseForm({ courseId, initialCourse }) {
 
         <label className="mt-4 block text-sm mb-1">O pegá una URL pública</label>
         <input
+          maxLength={COURSE_TEXT_LIMITS.image_url}
           value={form.image_url || ""}
           onChange={(e) => update("image_url", e.target.value)}
           placeholder="https://..."
@@ -291,6 +361,7 @@ export default function CourseForm({ courseId, initialCourse }) {
               <label className="block text-sm mb-1">Moneda</label>
               <input
                 value={form.currency || "ARS"}
+                maxLength={COURSE_TEXT_LIMITS.currency}
                 onChange={(e) => update("currency", e.target.value)}
                 className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
               />

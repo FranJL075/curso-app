@@ -3,13 +3,14 @@ import Benefits from "@/components/Benefits";
 import CourseCatalog from "@/components/CourseCatalog";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { getActiveCourses } from "@/lib/db";
+import { getActiveCourses, getAllCategories } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [courses, bannerUrl] = await Promise.all([
+  const [courses, categories, bannerUrl] = await Promise.all([
     getActiveCourses(),
+    getAllCategories(),
     import("@/lib/db").then(({ getSiteSetting }) => getSiteSetting("courses_banner_url")),
   ]);
 
@@ -27,7 +28,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <CourseCatalog courses={courses} />
+        <CourseCatalog courses={courses} categories={categories} />
         <p className="mt-10 max-w-3xl border-l-2 border-brass pl-5 text-sm leading-relaxed text-ink-soft/70">
           La formación y los certificados no sustituyen una licencia profesional ni amplían su alcance. La realización de procedimientos depende de las credenciales, la supervisión y la normativa aplicable.
         </p>

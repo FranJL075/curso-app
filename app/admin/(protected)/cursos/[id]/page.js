@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCourseById, getEnrollmentsByCourse } from "@/lib/db";
+import { getAllCategories, getCourseById, getEnrollmentsByCourse } from "@/lib/db";
 import CourseForm from "@/components/CourseForm";
 import DeleteCourseButton from "@/components/DeleteCourseButton";
 import ReminderForm from "@/components/ReminderForm";
@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic";
 
 export default async function EditCoursePage({ params }) {
   const { id } = await params;
-  const course = await getCourseById(id);
+  const [course, categories] = await Promise.all([
+    getCourseById(id),
+    getAllCategories(),
+  ]);
   if (!course) notFound();
   const enrollments = await getEnrollmentsByCourse(id);
 
@@ -28,7 +31,7 @@ export default async function EditCoursePage({ params }) {
           <h1 className="font-display text-3xl">Editar curso</h1>
           <DeleteCourseButton courseId={course.id} />
         </div>
-        <CourseForm courseId={course.id} initialCourse={course} />
+        <CourseForm courseId={course.id} initialCourse={course} categories={categories} />
       </div>
 
       <div>
