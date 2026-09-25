@@ -14,7 +14,7 @@ function formatPrice(course) {
 
 export default function CourseCard({ course }) {
   return (
-    <article className="group block h-full min-h-0 border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass md:min-h-[440px]">
+    <article className="group block h-[360px] border border-line bg-panel transition-all hover:-translate-y-1 hover:border-brass md:h-[440px]">
       <div className="grid h-full md:grid-cols-[minmax(150px,34%)_1fr]">
         <Link href={`/cursos/${course.slug}`} className="relative block h-32 bg-teal md:min-h-40 md:h-full" aria-label={`Ver ${course.title}`}>
           {course.image_url ? (
