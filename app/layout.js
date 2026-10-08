@@ -6,8 +6,12 @@ export const metadata = {
     "Clases online y prácticas presenciales supervisadas de estética en Miami, USA. Grupos reducidos, modelos reales y formación profesional.",
   icons: {
     icon: {
-      url: "/Logo_We_Master_Stand-2copia.jpg",
-      type: "image/jpeg",
+      url: "/FAVICONWMG.png",
+      type: "image/png",
+    },
+    apple: {
+      url: "/FAVICONWMG.png",
+      type: "image/png",
     },
   },
 };
