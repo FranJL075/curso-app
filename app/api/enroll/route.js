@@ -78,6 +78,7 @@ export async function POST(request) {
       to: normalizedEmail,
       name: normalizedName,
       courseTitle: course.title,
+      startDate: course.start_date,
     })],
   ]) {
     try {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAllCourses, getAllEnrollments } from "@/lib/db";
+import { formatCourseDate } from "@/lib/courseDate";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,10 @@ export default async function AdminDashboard() {
                       <span className="ml-2 text-xs text-ink-soft/50">(oculto)</span>
                     ) : null}
                   </p>
-                  <p className="text-sm text-ink-soft/60">{course.duration}</p>
+                  <p className="text-sm text-ink-soft/60">
+                    {course.duration}
+                    {course.start_date ? ` · ${formatCourseDate(course.start_date)}` : ""}
+                  </p>
                 </div>
                 <span className="text-sm text-ink-soft/70">{count} inscriptos</span>
               </Link>

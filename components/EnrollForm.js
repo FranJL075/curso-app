@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatCoursePrice } from "@/lib/coursePricing";
+import { formatCourseDate } from "@/lib/courseDate";
 
 export default function EnrollForm({ course = null, courses = [] }) {
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
@@ -45,6 +46,11 @@ export default function EnrollForm({ course = null, courses = [] }) {
     return (
       <div className="bg-teal text-paper p-6">
         <p className="font-display text-2xl uppercase">¡Listo, completaste tu inscripción!</p>
+        {course?.start_date ? (
+          <p className="mt-3 font-display text-xl uppercase text-paper md:text-2xl">
+            Fecha de inicio: {formatCourseDate(course.start_date)}
+          </p>
+        ) : null}
         <p className="mt-2 text-paper/80">
           {course?.is_paid
             ? "Te vamos a contactar para coordinar el pago y confirmar tu lugar."
@@ -62,7 +68,11 @@ export default function EnrollForm({ course = null, courses = [] }) {
           <select id="courseId" name="courseId" required defaultValue="" className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal">
             <option value="" disabled>Selecciona una práctica</option>
             {availableCourses.map((availableCourse) => (
-              <option key={availableCourse.id} value={availableCourse.id}>{availableCourse.title} · {formatCoursePrice(availableCourse)}</option>
+              <option key={availableCourse.id} value={availableCourse.id}>
+                {availableCourse.title}
+                {availableCourse.start_date ? ` · ${formatCourseDate(availableCourse.start_date)}` : ""}
+                {` · ${formatCoursePrice(availableCourse)}`}
+              </option>
             ))}
           </select>
         </div>

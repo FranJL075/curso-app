@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/requireAdmin";
 import { getCourseById, getEnrollmentsByCourse, markEnrollmentReminderSent } from "@/lib/db";
-import { sendEmail, formatCourseDate } from "@/lib/mail";
+import { sendEmail } from "@/lib/mail";
+import { formatCourseDate } from "@/lib/courseDate";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_SUBJECT_LENGTH = 180;

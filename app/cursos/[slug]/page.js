@@ -6,6 +6,7 @@ import EnrollForm from "@/components/EnrollForm";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { formatCoursePrice } from "@/lib/coursePricing";
+import { formatCourseDate } from "@/lib/courseDate";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,14 @@ export default async function CoursePage({ params }) {
           </Link>
           <h1 className="mt-5 max-w-3xl font-display text-5xl uppercase leading-[0.9] md:text-8xl">{course.title}</h1>
           <p className="mt-5 text-sm uppercase tracking-wide text-brass">{course.duration}</p>
+          {course.start_date ? (
+            <div className="mt-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-paper/70">Fecha de inicio</p>
+              <p className="mt-1 font-display text-2xl uppercase leading-tight text-paper md:text-4xl">
+                {formatCourseDate(course.start_date)}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -68,6 +77,14 @@ export default async function CoursePage({ params }) {
 
         <div>
           <div className="mb-6 border border-line bg-panel p-5">
+            {course.start_date ? (
+              <div className="mb-5 border-b border-line pb-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft/60">Fecha de inicio</p>
+                <p className="mt-1 font-display text-2xl uppercase leading-tight text-teal md:text-3xl">
+                  {formatCourseDate(course.start_date)}
+                </p>
+              </div>
+            ) : null}
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft/60">Precio</p>
             <p className="mt-2 text-xl font-semibold text-teal">{formatCoursePrice(course)}</p>
           </div>
