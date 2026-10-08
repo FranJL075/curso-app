@@ -21,6 +21,15 @@ const empty = {
   is_active: true,
 };
 
+function getImageFileName(imageUrl) {
+  try {
+    const pathname = new URL(imageUrl, "https://curso-app.local").pathname;
+    return decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) || imageUrl);
+  } catch {
+    return imageUrl;
+  }
+}
+
 export default function CourseForm({ courseId, initialCourse, categories = [] }) {
   const router = useRouter();
   const [availableCategories, setAvailableCategories] = useState(() => {
@@ -337,6 +346,27 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
         <p className="mt-1 text-xs text-ink-soft/50">Máx. 10 MB · JPG, PNG o WEBP</p>
         {uploadingImage ? <p className="mt-2 text-xs text-teal">Subiendo imagen...</p> : null}
         {uploadError ? <p className="mt-2 text-xs text-red-700">{uploadError}</p> : null}
+        {form.image_url ? (
+          <div className="mt-3 border border-line p-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="min-w-0 truncate text-sm" title={form.image_url}>
+                Imagen actual: <span className="font-medium">{getImageFileName(form.image_url)}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => update("image_url", "")}
+                disabled={uploadingImage || saving}
+                className="shrink-0 border border-line px-3 py-1 text-sm hover:bg-paper disabled:opacity-60"
+              >
+                Quitar imagen
+              </button>
+            </div>
+            <div className="relative mt-3 h-40 w-full">
+              <Image src={form.image_url} alt="Vista previa de la imagen del curso" fill unoptimized className="object-cover" />
+            </div>
+            <p className="mt-2 text-xs text-ink-soft/60">Se quitará del curso al guardar los cambios.</p>
+          </div>
+        ) : null}
 
         <label className="mt-4 block text-sm mb-1">O pegá una URL pública</label>
         <input
@@ -346,11 +376,6 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           placeholder="https://..."
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
-        {form.image_url ? (
-          <div className="relative mt-3 h-40 w-full">
-            <Image src={form.image_url} alt="Vista previa del curso" fill unoptimized className="object-cover" />
-          </div>
-        ) : null}
       </div>
 
       <div className="border-t border-line pt-4">
