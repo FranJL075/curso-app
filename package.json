@@ -12,13 +12,15 @@
     "migrate": "node scripts/migrate.js"
   },
   "dependencies": {
+    "@vercel/blob": "^2.8.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.3",
     "next": "16.3.4",
     "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "resend": "^6.28.1"
+    "resend": "^6.28.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

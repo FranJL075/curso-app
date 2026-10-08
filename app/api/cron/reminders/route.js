@@ -9,15 +9,24 @@ export async function GET(request) {
   }
   const enrollments = await getEnrollmentsForReminders();
   let sent = 0;
+  let failed = 0;
   for (const enrollment of enrollments) {
-    await sendCourseReminder({
-      to: enrollment.email,
-      name: enrollment.full_name,
-      courseTitle: enrollment.course_title,
-      startDate: enrollment.start_date,
-    });
-    await markReminderSent(enrollment.id);
-    sent += 1;
+    try {
+      const emailSent = await sendCourseReminder({
+        to: enrollment.email,
+        name: enrollment.full_name,
+        courseTitle: enrollment.course_title,
+        startDate: enrollment.start_date,
+        duration: enrollment.duration,
+        modality: enrollment.modality,
+      });
+      if (!emailSent) throw new Error("Configuración de email incompleta.");
+      await markReminderSent(enrollment.id);
+      sent += 1;
+    } catch (error) {
+      failed += 1;
+      console.error(`No se pudo enviar el recordatorio a enrollment ${enrollment.id}:`, error);
+    }
   }
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: failed === 0, sent, failed });
 }

@@ -33,7 +33,7 @@ Tablas principales:
 
 - `users`: cuentas de administradores y hashes bcrypt.
 - `courses`: cursos, imágenes y fechas.
-- `enrollments`: inscripciones, preferencias de recordatorio y estado de pago.
+- `enrollments`: inscripciones, estado del recordatorio y estado de pago.
 - `password_reset_tokens`: tokens hasheados, de un solo uso y con expiración.
 - `site_settings`: configuración editable como `courses_banner_url`.
 
@@ -46,8 +46,11 @@ La aplicación conserva las funciones de acceso a cursos e inscripciones en `lib
 - `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_INITIAL_PASSWORD`: datos usados por `npm run seed` para crear el primer administrador.
 - `APP_URL`: URL pública, usada para generar enlaces de recuperación.
 - `RESEND_API_KEY`: API key de Resend.
-- `EMAIL_FROM`: remitente verificado en Resend, por ejemplo `Academia <noreply@tu-dominio.com>`.
-- `CRON_SECRET`: secreto que protege el endpoint de recordatorios.
+- `EMAIL_FROM`: remitente verificado en Resend.
+- `ENROLLMENT_NOTIFICATION_TO`: destinatario(s) administrativo(s) de alertas y resúmenes; separa varios emails con comas.
+- `ENROLLMENT_NOTIFICATION_CC`: destinatario(s) opcionales en copia, separados por comas.
+- `CRON_SECRET`: secreto aleatorio que protege los endpoints Cron.
+- `BLOB_READ_WRITE_TOKEN`: token de Vercel Blob para guardar las imágenes de los cursos.
 
 No se requieren `ADMIN_PASSWORD` ni contraseñas guardadas en archivos. `.env*` está excluido de Git.
 
@@ -60,9 +63,11 @@ npm run migrate
 npm run seed
 ```
 
-`vercel.json` programa `/api/cron/reminders` una vez por día. Vercel envía el encabezado `Authorization: Bearer <CRON_SECRET>` al endpoint.
+Para subir imágenes, crea un Blob Store desde Storage en el proyecto de Vercel y conecta el store al proyecto para que configure `BLOB_READ_WRITE_TOKEN`. La carga se realiza directamente desde el navegador para evitar el límite de 4,5 MB de las funciones de Vercel. Luego de conectar el store, vuelve a desplegar. En desarrollo local, las imágenes se guardan en `public/uploads`.
 
-Para emails, crea una cuenta en Resend, verifica el dominio del remitente y configura `RESEND_API_KEY` y `EMAIL_FROM`. Sin esas variables, las inscripciones siguen guardándose, pero no se envían emails.
+`vercel.json` programa `/api/cron/reminders` a las 12:00 UTC y `/api/cron/daily-enrollments` a las 13:00 UTC. El resumen corre a las 8:00 a. m. en Miami durante EST y a las 9:00 a. m. durante EDT; el día y las horas de las inscripciones se calculan siempre con `America/New_York`. Vercel envía `Authorization: Bearer <CRON_SECRET>` a los endpoints.
+
+Para emails, crea una cuenta en Resend, verifica el dominio del remitente y configura `RESEND_API_KEY`, `EMAIL_FROM` y `ENROLLMENT_NOTIFICATION_TO`. Una falla de email no deshace una inscripción guardada. El resumen diario registra su envío en `site_settings` para evitar duplicados; no requiere cambios de esquema ni migraciones.
 
 ## Funcionalidades administrativas
 
@@ -72,7 +77,7 @@ Para emails, crea una cuenta en Resend, verifica el dominio del remitente y conf
 - `/admin/reset-password`: restablecimiento mediante token de un solo uso.
 - `/admin/configuracion`: URL del banner principal de cursos.
 - Alta y edición de cursos: URL de imagen con vista previa.
-- Inscripciones: preferencia de recibir recordatorios por email.
+- Recordatorios: se envían a todos los inscriptos con email válido y recordatorio pendiente; no requieren autorización opcional en el formulario.
 
 ## Pruebas manuales
 
@@ -81,8 +86,10 @@ Para emails, crea una cuenta en Resend, verifica el dominio del remitente y conf
 - Recuperación: configura Resend, solicita el enlace en `/admin/forgot-password` y abre la URL recibida.
 - Cursos e imágenes: crea o edita un curso desde el panel, pega una URL de imagen y comprueba la tarjeta y el detalle público.
 - Banner: cambia la URL en `/admin/configuracion` y revisa la portada.
-- Inscripción: completa el formulario público y marca la preferencia de recordatorios.
-- Emails: verifica el email de confirmación; el cron puede probarse con `GET /api/cron/reminders` usando `Authorization: Bearer <CRON_SECRET>`.
+- Inscripción: completa el formulario para recibir la confirmación al alumno y la alerta administrativa después de guardar en PostgreSQL.
+- Recordatorios: usa el botón del curso en el panel; para probar sin enviar a los alumnos, configura temporalmente `EMAIL_TEST_MODE=true` y `EMAIL_TEST_RECIPIENT`.
+- Resumen diario: llama una vez a `GET /api/cron/daily-enrollments` con `Authorization: Bearer <CRON_SECRET>`. El envío es idempotente por fecha; para repetir una prueba, elimina solo la clave `daily_enrollments_email:AAAA-MM-DD` correspondiente de `site_settings`.
+- Recordatorios automáticos: `GET /api/cron/reminders` también requiere `Authorization: Bearer <CRON_SECRET>`.
 
 ## Comandos
 

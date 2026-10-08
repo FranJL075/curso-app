@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { upload } from "@vercel/blob/client";
 import { COURSE_TEXT_LIMITS } from "@/lib/courseLimits";
 
 const empty = {
@@ -103,21 +104,39 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
     setUploadingImage(true);
     setUploadError("");
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/admin/upload-image", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json().catch(() => ({}));
+      if (process.env.NODE_ENV === "production") {
+        const extensions = {
+          "image/jpeg": "jpg",
+          "image/png": "png",
+          "image/webp": "webp",
+        };
+        const blob = await upload(
+          `course-images/${crypto.randomUUID()}.${extensions[file.type]}`,
+          file,
+          {
+            access: "public",
+            handleUploadUrl: "/api/admin/upload-image",
+            contentType: file.type,
+          }
+        );
+        update("image_url", blob.url);
+      } else {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      if (!res.ok) {
-        throw new Error(data.error || "No se pudo subir la imagen.");
+        const res = await fetch("/api/admin/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          throw new Error(data.error || "No se pudo subir la imagen.");
+        }
+
+        update("image_url", data.url || "");
       }
-
-      update("image_url", data.url || "");
     } catch (uploadErr) {
       setUploadError(uploadErr.message || "No se pudo subir la imagen.");
     } finally {

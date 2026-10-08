@@ -15,6 +15,10 @@ export default async function EditCoursePage({ params }) {
   ]);
   if (!course) notFound();
   const enrollments = await getEnrollmentsByCourse(id);
+  const reminderRecipientCount = enrollments.filter(
+    (enrollment) => !enrollment.reminder_sent_at
+      && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(enrollment.email)
+  ).length;
 
   return (
     <div className="grid gap-10 md:grid-cols-2">
@@ -43,7 +47,7 @@ export default async function EditCoursePage({ params }) {
             <ReminderForm
               courseId={course.id}
               courseTitle={course.title}
-              recipientCount={enrollments.length}
+              recipientCount={reminderRecipientCount}
               testMode={process.env.EMAIL_TEST_MODE === "true"}
             />
             <a

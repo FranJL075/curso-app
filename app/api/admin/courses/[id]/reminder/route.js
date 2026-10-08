@@ -1,7 +1,7 @@
-import { Resend } from "resend";
 import { NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/requireAdmin";
 import { getCourseById, getEnrollmentsByCourse, markEnrollmentReminderSent } from "@/lib/db";
+import { sendEmail, formatCourseDate } from "@/lib/mail";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_SUBJECT_LENGTH = 180;
@@ -37,30 +37,34 @@ export async function POST(request, { params }) {
   if (!course) return NextResponse.json({ error: "Curso no encontrado." }, { status: 404 });
 
   const enrollments = (await getEnrollmentsByCourse(id)).filter(
-    (enrollment) => enrollment.wants_reminders === true && EMAIL_PATTERN.test(enrollment.email)
+    (enrollment) => !enrollment.reminder_sent_at
+      && EMAIL_PATTERN.test(enrollment.email)
   );
-  if (enrollments.length === 0) return NextResponse.json({ error: "No hay inscriptos con recordatorios habilitados y email válido." }, { status: 400 });
+  if (enrollments.length === 0) return NextResponse.json({ error: "No hay inscriptos pendientes con email válido." }, { status: 400 });
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
   const testMode = process.env.EMAIL_TEST_MODE === "true";
   const testRecipient = process.env.EMAIL_TEST_RECIPIENT;
-  if (!apiKey || !from || (testMode && !EMAIL_PATTERN.test(testRecipient || ""))) {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM || (testMode && !EMAIL_PATTERN.test(testRecipient || ""))) {
     console.error("Configuración de email incompleta para recordatorios.");
     return NextResponse.json({ error: "El servicio de email no está configurado." }, { status: 500 });
   }
 
-  const resend = new Resend(apiKey);
   const results = await Promise.allSettled(enrollments.map(async (enrollment) => {
     const personalizedMessage = personalize(message, enrollment, course.title);
-    const { error } = await resend.emails.send({
-      from,
+    const courseDetails = [
+      `Curso: ${course.title}`,
+      course.start_date && `Fecha: ${formatCourseDate(course.start_date)}`,
+      course.duration && `Duración: ${course.duration}`,
+      course.modality && `Modalidad: ${course.modality}`,
+    ].filter(Boolean);
+    const completeMessage = `${personalizedMessage}\n\n${courseDetails.join("\n")}`;
+    const sent = await sendEmail({
       to: testMode ? testRecipient : enrollment.email,
       subject: personalize(subject, enrollment, course.title),
-      text: personalizedMessage,
-      html: `<p>${textToHtml(personalizedMessage)}</p>`,
+      text: completeMessage,
+      html: `<p>${textToHtml(personalizedMessage)}</p><ul>${courseDetails.map((detail) => `<li>${textToHtml(detail)}</li>`).join("")}</ul>`,
     });
-    if (error) throw new Error(error.message || "Resend rechazó el email");
+    if (!sent) throw new Error("Email no enviado: configuración incompleta de Resend.");
     if (!testMode) await markEnrollmentReminderSent(enrollment.id);
   }));
 
@@ -73,6 +77,7 @@ export async function POST(request, { params }) {
   return NextResponse.json({
     sent,
     failed,
+    total: results.length,
     message: failed ? `Se enviaron ${sent} de ${results.length} recordatorios. ${failed} envíos fallaron.` : `Recordatorio enviado correctamente a ${sent} inscriptos.`,
   });
 }

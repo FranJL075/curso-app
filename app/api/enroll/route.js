@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createEnrollment, getCourseById } from "@/lib/db";
+import { sendEnrollmentConfirmation, sendEnrollmentNotification } from "@/lib/mail";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -17,7 +18,7 @@ export async function POST(request) {
     return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
   }
 
-  const { courseId, fullName, email, phone, message, wantsReminders } = body || {};
+  const { courseId, fullName, email, phone, message } = body || {};
   const normalizedName = clean(fullName);
   const normalizedEmail = clean(email).toLowerCase();
   const normalizedPhone = clean(phone);
@@ -36,7 +37,16 @@ export async function POST(request) {
     return NextResponse.json({ error: "Revisá el largo de los datos ingresados." }, { status: 400 });
   }
 
-  const course = await getCourseById(courseId);
+  let course;
+  try {
+    course = await getCourseById(courseId);
+  } catch (error) {
+    console.error("No se pudo consultar el curso para la inscripción:", error);
+    return NextResponse.json(
+      { error: "No se pudo procesar la inscripción. Intentá nuevamente." },
+      { status: 500 }
+    );
+  }
   if (!course || !course.is_active) {
     return NextResponse.json({ error: "El curso no existe o no está activo." }, { status: 404 });
   }
@@ -45,34 +55,38 @@ export async function POST(request) {
   // pago (Mercado Pago / Stripe) si course.is_paid === 1, antes o después de
   // guardar la inscripción, según el flujo que se elija.
  
+  let enrollment;
   try {
-  await createEnrollment({
-    courseId: course.id,
-    fullName: normalizedName,
-    email: normalizedEmail,
-    phone: normalizedPhone,
-    message: normalizedMessage,
-    wantsReminders: Boolean(wantsReminders),
-  });
-} catch (error) {
-  console.error("No se pudo guardar la inscripción:", error);
+    enrollment = await createEnrollment({
+      courseId: course.id,
+      fullName: normalizedName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
+      message: normalizedMessage,
+    });
+  } catch (error) {
+    console.error("No se pudo guardar la inscripción:", error);
+    return NextResponse.json(
+      { error: "No se pudo guardar la inscripción. Intentá nuevamente." },
+      { status: 500 }
+    );
+  }
 
-  const message = error.message.includes("DATABASE_URL")
-    ? error.message
-    : "No se pudo guardar la inscripción.";
+  for (const [description, send] of [
+    ["alerta administrativa", () => sendEnrollmentNotification({ enrollment, course })],
+    ["confirmación al alumno", () => sendEnrollmentConfirmation({
+      to: normalizedEmail,
+      name: normalizedName,
+      courseTitle: course.title,
+    })],
+  ]) {
+    try {
+      const sent = await send();
+      if (!sent) console.error(`No se pudo enviar la ${description} de la inscripción ${enrollment.id}.`);
+    } catch (error) {
+      console.error(`No se pudo enviar la ${description} de la inscripción ${enrollment.id}:`, error);
+    }
+  }
 
-  return NextResponse.json({ error: message }, { status: 500 });
-}
-
-const { sendEnrollmentConfirmation } = await import("@/lib/mail");
-
-await sendEnrollmentConfirmation({
-  to: normalizedEmail,
-  name: normalizedName,
-  courseTitle: course.title,
-}).catch((error) => {
-  console.error("No se pudo enviar la confirmación:", error);
-});
-
-return NextResponse.json({ ok: true }, { status: 201 });
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
