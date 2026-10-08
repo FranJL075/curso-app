@@ -1,15 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-function formatPrice(course) {
-  if (!course.is_paid) return "Sin costo";
-  return ((course.price_cents || 0) / 100).toLocaleString("en-US", {
-    style: "currency",
-    currency: course.currency || "USD",
-    maximumFractionDigits: 0,
-  });
-}
+import { formatCoursePrice } from "@/lib/coursePricing";
 
 export default function EnrollForm({ course = null, courses = [] }) {
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
@@ -70,7 +62,7 @@ export default function EnrollForm({ course = null, courses = [] }) {
           <select id="courseId" name="courseId" required defaultValue="" className="w-full border border-line bg-white px-3 py-3 outline-none focus:border-teal">
             <option value="" disabled>Selecciona una práctica</option>
             {availableCourses.map((availableCourse) => (
-              <option key={availableCourse.id} value={availableCourse.id}>{availableCourse.title} · {formatPrice(availableCourse)}</option>
+              <option key={availableCourse.id} value={availableCourse.id}>{availableCourse.title} · {formatCoursePrice(availableCourse)}</option>
             ))}
           </select>
         </div>

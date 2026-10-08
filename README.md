@@ -77,6 +77,7 @@ Para emails, crea una cuenta en Resend, verifica el dominio del remitente y conf
 - `/admin/reset-password`: restablecimiento mediante token de un solo uso.
 - `/admin/configuracion`: URL del banner principal de cursos.
 - Alta y edición de cursos: URL de imagen con vista previa.
+- Alta y edición de cursos: precio numérico, moneda y texto opcional para promociones visibles en las tarjetas y en el detalle del curso.
 - Recordatorios: se envían a todos los inscriptos con email válido y recordatorio pendiente; no requieren autorización opcional en el formulario.
 
 ## Pruebas manuales

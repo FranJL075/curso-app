@@ -5,6 +5,7 @@ import { getCourseBySlug } from "@/lib/db";
 import EnrollForm from "@/components/EnrollForm";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { formatCoursePrice } from "@/lib/coursePricing";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +67,10 @@ export default async function CoursePage({ params }) {
         </article>
 
         <div>
+          <div className="mb-6 border border-line bg-panel p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft/60">Precio</p>
+            <p className="mt-2 text-xl font-semibold text-teal">{formatCoursePrice(course)}</p>
+          </div>
           <EnrollForm course={course} />
         </div>
       </div>

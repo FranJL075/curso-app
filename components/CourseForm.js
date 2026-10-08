@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { upload } from "@vercel/blob/client";
 import { COURSE_TEXT_LIMITS } from "@/lib/courseLimits";
+import { getCoursePriceNote } from "@/lib/coursePricing";
 
 const empty = {
   category: "",
@@ -42,6 +43,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
     ? {
         ...initialCourse,
         price: initialCourse.price_cents ? initialCourse.price_cents / 100 : "",
+        price_label: getCoursePriceNote(initialCourse.price_label),
       }
     : {};
   const [form, setForm] = useState({ ...empty, ...initial });
@@ -409,6 +411,19 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
                 onChange={(e) => update("currency", e.target.value)}
                 className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
               />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-sm mb-1">Texto adicional del precio o promoción (opcional)</label>
+              <input
+                maxLength={COURSE_TEXT_LIMITS.price_label}
+                value={form.price_label || ""}
+                onChange={(e) => update("price_label", e.target.value)}
+                placeholder="Ej.: Consulta la promoción vigente"
+                className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
+              />
+              <p className="mt-1 text-xs text-ink-soft/50">
+                Se muestra junto al precio en la tarjeta y en el detalle del curso.
+              </p>
             </div>
           </div>
         ) : (

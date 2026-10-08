@@ -1,16 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-
-function formatPrice(course) {
-  if (course.price_label) return course.price_label;
-  if (!course.is_paid) return "Sin costo";
-  const amount = (course.price_cents || 0) / 100;
-  return amount.toLocaleString("es-AR", {
-    style: "currency",
-    currency: course.currency || "ARS",
-    maximumFractionDigits: 0,
-  });
-}
+import { formatCoursePrice } from "@/lib/coursePricing";
 
 export default function CourseCard({ course }) {
   return (
@@ -38,7 +28,7 @@ export default function CourseCard({ course }) {
           </h3>
           <p className="mt-3 hidden text-ink-soft/75 text-sm leading-relaxed md:block">{course.summary}</p>
           {course.includes ? <p className="relative top-[5px] mt-3 text-xs leading-relaxed text-ink-soft/60 md:mt-4"><strong>Incluye:</strong> {course.includes}</p> : null}
-          <p className="mt-auto pt-3 text-xs font-semibold uppercase tracking-wide text-teal md:pt-5">{formatPrice(course)}</p>
+          <p className="mt-auto pt-3 text-xs font-semibold uppercase tracking-wide text-teal md:pt-5">{formatCoursePrice(course)}</p>
           <Link
             href={`/cursos/${course.slug}`}
             className="absolute bottom-0 right-0 bg-teal px-4 py-3 text-xs font-semibold uppercase tracking-wide text-paper transition-colors hover:bg-ink"
