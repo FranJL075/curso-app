@@ -9,6 +9,7 @@ export default function SiteFooter() {
           <nav className="flex flex-col gap-3 text-lg font-semibold uppercase tracking-wide">
             <Link href="/#catalogo" className="transition-colors hover:text-brass hover:underline underline-offset-4">Prácticas</Link>
             <Link href="/#beneficios" className="transition-colors hover:text-brass hover:underline underline-offset-4">Beneficios</Link>
+            <Link href="/#ubicacion" className="transition-colors hover:text-brass hover:underline underline-offset-4">Nuestra ubicación</Link>
             <Link href="/#garantia" className="transition-colors hover:text-brass hover:underline underline-offset-4">Garantía</Link>
           </nav>
           <div className="flex flex-col items-start gap-4 md:items-end">

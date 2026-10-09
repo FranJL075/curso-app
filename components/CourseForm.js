@@ -31,6 +31,16 @@ function getImageFileName(imageUrl) {
   }
 }
 
+function CharacterCount({ value, limit }) {
+  const count = String(value ?? "").length;
+
+  return (
+    <p className={`mt-1 text-right text-xs ${count >= limit ? "text-red-700" : "text-ink-soft/50"}`}>
+      {count} / {limit} caracteres
+    </p>
+  );
+}
+
 export default function CourseForm({ courseId, initialCourse, categories = [] }) {
   const router = useRouter();
   const [availableCategories, setAvailableCategories] = useState(() => {
@@ -200,6 +210,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("title", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.title} limit={COURSE_TEXT_LIMITS.title} />
       </div>
 
       <div>
@@ -216,13 +227,16 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           ))}
         </select>
         <div className="mt-2 flex gap-2">
-          <input
-            maxLength={COURSE_TEXT_LIMITS.category}
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="Nueva categoría"
-            className="min-w-0 flex-1 border border-line bg-white px-3 py-2 text-sm outline-none focus:border-teal"
-          />
+          <div className="min-w-0 flex-1">
+            <input
+              maxLength={COURSE_TEXT_LIMITS.category}
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Nueva categoría"
+              className="w-full border border-line bg-white px-3 py-2 text-sm outline-none focus:border-teal"
+            />
+            <CharacterCount value={newCategory} limit={COURSE_TEXT_LIMITS.category} />
+          </div>
           <button
             type="button"
             disabled={creatingCategory || !newCategory.trim()}
@@ -244,6 +258,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("summary", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.summary} limit={COURSE_TEXT_LIMITS.summary} />
       </div>
 
       <div>
@@ -256,6 +271,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("description", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.description} limit={COURSE_TEXT_LIMITS.description} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -269,6 +285,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
             onChange={(e) => update("duration", e.target.value)}
             className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
           />
+          <CharacterCount value={form.duration} limit={COURSE_TEXT_LIMITS.duration} />
         </div>
         <div>
           <label className="block text-sm mb-1">Cupos (opcional)</label>
@@ -292,6 +309,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           placeholder="Ej: Presencial · 3 días"
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.modality} limit={COURSE_TEXT_LIMITS.modality} />
       </div>
 
       <div>
@@ -303,6 +321,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("includes", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.includes} limit={COURSE_TEXT_LIMITS.includes} />
       </div>
 
       <div>
@@ -314,6 +333,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("requirements", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.requirements} limit={COURSE_TEXT_LIMITS.requirements} />
       </div>
 
       <div>
@@ -324,6 +344,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           onChange={(e) => update("payment", e.target.value)}
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.payment} limit={COURSE_TEXT_LIMITS.payment} />
       </div>
 
       <div>
@@ -378,6 +399,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
           placeholder="https://..."
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
         />
+        <CharacterCount value={form.image_url} limit={COURSE_TEXT_LIMITS.image_url} />
       </div>
 
       <div className="border-t border-line pt-4">
@@ -411,6 +433,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
                 onChange={(e) => update("currency", e.target.value)}
                 className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
               />
+              <CharacterCount value={form.currency} limit={COURSE_TEXT_LIMITS.currency} />
             </div>
             <div className="col-span-2">
               <label className="block text-sm mb-1">Texto adicional del precio o promoción (opcional)</label>
@@ -421,6 +444,7 @@ export default function CourseForm({ courseId, initialCourse, categories = [] })
                 placeholder="Ej.: Consulta la promoción vigente"
                 className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-teal"
               />
+              <CharacterCount value={form.price_label} limit={COURSE_TEXT_LIMITS.price_label} />
               <p className="mt-1 text-xs text-ink-soft/50">
                 Se muestra junto al precio en la tarjeta y en el detalle del curso.
               </p>
