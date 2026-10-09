@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Hero from "@/components/Hero";
 import Benefits from "@/components/Benefits";
 import CourseCatalog from "@/components/CourseCatalog";
+import LocationImage from "@/components/LocationImage";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { getActiveCourses, getAllCategories } from "@/lib/db";
@@ -55,23 +55,7 @@ export default async function HomePage() {
             Cómo llegar
           </a>
         </div>
-        <a
-          href="/WhatsApp%20Image%202026-10-09%20at%202.03.06%20PM.jpeg"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Ampliar imagen de la ubicación de WeMaster"
-          className="block cursor-zoom-in"
-        >
-          <Image
-            src="/WhatsApp%20Image%202026-10-09%20at%202.03.06%20PM.jpeg"
-            alt="Ubicación de WeMaster en 8260 NW 27 St, suite 409, Doral, Florida"
-            width={1536}
-            height={1024}
-            sizes="(min-width: 1280px) 1152px, 100vw"
-            className="h-auto w-full border border-line"
-          />
-        </a>
-        <p className="mt-2 text-right text-xs text-ink-soft/60">Toca la imagen para ampliarla.</p>
+        <LocationImage />
       </section>
 
       <section id="garantia" className="bg-brass text-white">
